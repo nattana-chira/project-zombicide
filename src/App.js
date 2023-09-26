@@ -9,17 +9,18 @@ import MapZombieSpawnPoint from './components/MapZombieSpawnPoint';
 import MapObjective from './components/MapObjective';
 import MapEpicWeapon from './components/MapEpicWeapon';
 import MapDoor from './components/MapDoor';
-import { JSONreset, delay, randomIdOnlyNumber, randomNumber, sortRandom } from './classes/Utils';
+import { JSONreset, createArray, delay, randomIdOnlyNumber, randomNumber, sortRandom, stringContains } from './classes/Utils';
 import MapPlayer from './components/MapPlayer';
 import { mapMasterDeck, shuffleDeck, starterWeapons } from './classes/Card';
 import Player from './classes/Player';
 import ItemCard from './components/ItemCard';
 import { fetchInitData, subscribeData, updateData } from './classes/ApiService';
 import PlayerBoard from './components/PlayerBoard';
-import { buildZombie } from './classes/Zombie';
+import { buildZombie, getZombieTrans } from './classes/Zombie';
 import { DEV_MODE } from './classes/_InitSetting';
 import missions from './classes/Mission';
 import Hero, { initHeroes, randomHero } from './classes/Hero';
+import $ from "jquery"
 
 function App() {
   const [rule, setRule] = useState(null)
@@ -30,7 +31,9 @@ function App() {
   const [spawnDeck, setSpawnDeck] = useState([])
 
   const [selectedCard, selectCard] = useState(null)
+  const [selectedWeapon, selectWeapon] = useState(null)
   const [diceResult, setDiceResult] = useState([])
+  const [diceBonus, setDiceBonus] = useState(0)
 
   const queryParams = new URLSearchParams(window.location.search)
   const sessionId = queryParams.get("sessionId")
@@ -50,9 +53,58 @@ function App() {
   const [showDice, toggleShowDice] = useState(0)
   const [yourName, setYourname] = useState("")
   const [showSpawner, setShowSpawner] = useState(false)
+  const [lastAudioLog, setLastAudioLog] = useState(null)
 
   const modalTrigger = useRef()
   const modalClose = useRef()
+
+  const [mousePos, setMousePos] = useState({});
+
+  useEffect(() => {
+    if (isMyTurn) {
+      PlayAudio.gunReload()
+    }
+  }, [isMyTurn])
+
+  useEffect(() => {
+    let lastLog = log[log.length - 1]
+    if (!lastLog) return () => { }
+    setLastAudioLog(lastLog)
+
+    const notMyLog = lastLog.sessionId !== me?.sessionId
+
+    if (lastLog.msg.includes("ใช้") && notMyLog)
+      playSoundByAction(lastLog.msg)
+    
+    if (lastLog.msg.includes("ค้นหาสิ่งของ") && notMyLog)
+      PlayAudio.search()
+
+    if (lastLog.msg.includes("ได้ฆ่า") && notMyLog && lastLog.msg !== lastAudioLog?.msg)
+      PlayAudio.randomZombieDead()
+
+    if (stringContains(["ทิ้งการ์ด", "มอบการ์ด", "สลับการ์ด"], lastLog.msg) && notMyLog)
+      PlayAudio.drawCard()
+
+    if (stringContains(["เก็บกล่องทรัพยากรสีแดง", "เก็บกล่องอาวุธ"], lastLog.msg) && notMyLog)
+      PlayAudio.openBox()
+
+    if (lastLog.msg.includes("ค้นหาสิ่งของ") && notMyLog)
+      PlayAudio.search()
+
+    if (stringContains(["พังประตู", "ปิดประตู"], lastLog.msg) && notMyLog)
+      PlayAudio.open()
+
+    if (stringContains(["ซอมบี้ปรากฏ", "ซอมบี้เคลื่อนที่"], lastLog.msg) && notMyLog && lastLog.msg !== lastAudioLog?.msg)
+      PlayAudio.randomZombieSpawn()
+
+    if (lastLog.msg.includes("เคลื่อนที่") && notMyLog && lastLog.msg !== lastAudioLog?.msg)
+      PlayAudio.move()
+
+    if (lastLog.msg.includes("เทิร์นซอมบี้"))
+      PlayAudio.heartbeat()
+      
+  }, [log])
+
 
   useEffect(() => {
     if (DEV_MODE) {
@@ -90,13 +142,11 @@ function App() {
     }
   }, [])
 
-  // useEffect(() => {
-  //   players
-  //   mission.spawnPosition
-  // }, [players.length])
-
   const resetSelector = () => {
     selectCard(null)
+    selectWeapon(null)
+    setDiceBonus(0)
+    toggleShowDice(0)
     modalClose.current.click()
     return false
   }
@@ -163,7 +213,85 @@ function App() {
     return state.players
   }
 
+  const playSoundByAction = (action) => {
+    if (action.includes("fire_axe")) PlayAudio.bash()
+    else if (action.includes("crowbar")) PlayAudio.bash()
+    else if (action.includes("baseball_bat")) PlayAudio.bash()
+    else if (action.includes("machete")) PlayAudio.bash()
+    else if (action.includes("katana")) PlayAudio.bash()
+    else if (action.includes("pan")) PlayAudio.bash()
+    else if (action.includes("claw_hammer")) PlayAudio.bash()
+    else if (action.includes("hatchet")) PlayAudio.bash()
+    else if (action.includes("kukri")) PlayAudio.bash()
+    else if (action.includes("meat_cleaver")) PlayAudio.bash()
+    else if (action.includes("wakizachi")) PlayAudio.bash()
+    else if (action.includes("knife")) PlayAudio.bash()
+    else if (action.includes("saber")) PlayAudio.bash()
+    else if (action.includes("sword")) PlayAudio.bash()
+    else if (action.includes("knuckles")) PlayAudio.bash()
+    else if (action.includes("la_guillotine")) PlayAudio.bash()
+    else if (action.includes("nailbat")) PlayAudio.bash()
+    else if (action.includes("zantetsuken")) PlayAudio.bash()
+    else if (action.includes("daisho")) PlayAudio.bash()
+    else if (action.includes("chainsaw")) PlayAudio.chainsaw()
+
+    // else if (action.includes("flamethrower")) PlayAudio.bow()
+    // else if (action.includes("rpg")) PlayAudio.bow()
+    else if (action.includes("evil_twins")) PlayAudio.gunPistol()
+    else if (action.includes("assault_rifle")) PlayAudio.gunM42()
+    else if (action.includes("pink_m4")) PlayAudio.gunM42()
+    else if (action.includes("rifle")) PlayAudio.gun3()
+    else if (action.includes("winchester")) PlayAudio.gun3()
+    else if (action.includes("sub_mg")) PlayAudio.gunSmg()
+    else if (action.includes("44_magnum")) PlayAudio.gunDesertEagle()
+    else if (action.includes("gunblade")) PlayAudio.gunGunblade()
+    else if (action.includes("mp5")) PlayAudio.gun2()
+    else if (action.includes("mac_10")) PlayAudio.gunSmg2()
+    else if (action.includes("bow")) PlayAudio.bow()
+    else if (action.includes("crossbow")) PlayAudio.bow()
+    else if (action.includes("golden_ak47")) PlayAudio.gunAk47()
+    else if (action.includes("ak47")) PlayAudio.gunAk47()
+    else if (action.includes("pistol")) PlayAudio.gunPistol()
+    else if (action.includes("desert_eagle")) PlayAudio.gunDesertEagle()
+    else if (action.includes("automatic_shotgun")) PlayAudio.gunAutoShotGun()
+    else if (action.includes("jack_and_jill")) PlayAudio.gunAutoShotGun()
+    else if (action.includes("ma_shotgun")) PlayAudio.gunShotgun()
+    else if (action.includes("double_barrel")) PlayAudio.gunShotgun()
+    else if (action.includes("shotgun")) PlayAudio.gunShotgun()
+    else if (action.includes("sawed_off")) PlayAudio.gunSawoff()
+    else if (action.includes("handcannon")) PlayAudio.gunSawoff()
+    else if (action.includes("911_special")) PlayAudio.gunP90()
+    else if (action.includes("thompson")) PlayAudio.gunM4()
+    else if (action.includes("nico_special")) PlayAudio.gunGaygun()
+  }
+
   // =============================================================
+
+  const handleKeyDown = (e) => {
+    if (isAdmin) {
+      if (e.key === "q") {
+        setSpawnerPosition(mousePos)
+      }
+    }
+
+    const scrollValue = 200
+
+    if (e.key === "w") 
+      window.scrollBy(0, -scrollValue)
+
+    if (e.key === "a") 
+      window.scrollBy(-scrollValue, 0)
+
+    if (e.key === "s") 
+      window.scrollBy(0, scrollValue)
+
+    if (e.key === "d") 
+      window.scrollBy(scrollValue, 0)
+  }
+
+  const handleMouseMove = (event) => {
+    if (isAdmin) setMousePos({ x: event.pageX - 200, y: event.pageY - 200 });
+  }
 
   const onYourNameInputChange = (e) => {
     setYourname(e.target.value)
@@ -250,10 +378,10 @@ function App() {
       return zombie
     })
     setMission({ ...state.mission })
-    PlayAudio.click()
+    PlayAudio.move()
 
     if (posChanged) {
-      addLog(state, `${zombieName} moving`)
+      addLog(state, `${zombieName} ซอมบี้เคลื่อนที่`)
       delay(() => updateData(state, { docId: roomId }))
     }
   }
@@ -278,10 +406,10 @@ function App() {
       return _player
     })
     setPlayers([ ...state.players ])
-    PlayAudio.click()
+    PlayAudio.move()
 
     if (posChanged) {
-      addLog(state, `${playerName} moving`)
+      addLog(state, `${playerName} เคลื่อนที่`)
       delay(() => updateData(state, { docId: roomId }))
     }
   }
@@ -305,16 +433,18 @@ function App() {
     delay(() => updateData(state, { docId: roomId }))
   }
 
-  const spawnZombieClicked = (zombieName) => {
+  const spawnZombieClicked = (zombieName, number = 1) => {
     const state = { log, mission }
-    const x = spawnerPosition.x + randomNumber(-50, 50)
-    const y = spawnerPosition.y + randomNumber(-50, 50)
 
-    state.mission.zombies = [...state.mission.zombies, buildZombie(zombieName, { position: { x, y } })]
+    createArray(number).map(() => {
+      const x = spawnerPosition.x + randomNumber(-50, 50)
+      const y = spawnerPosition.y + randomNumber(-50, 50)
+      state.mission.zombies = [...state.mission.zombies, buildZombie(zombieName, { position: { x, y } })]
+    })
     setMission({ ...state.mission })
     PlayAudio.randomZombieSpawn()
 
-    addLog(state, `spawn ${zombieName}`)
+    addLog(state, `ซอมบี้ปรากฏ ${zombieName}`)
     delay(() => updateData(state, { docId: roomId }))
   }
 
@@ -362,7 +492,8 @@ function App() {
     decreaseAction(state)
 
     const cards = drawnCardIds.map(mapMasterDeck)
-    PlayAudio.drawCard()
+    PlayAudio.search()
+
     addLog(state, `ค้นหาสิ่งของ ${cards[0].showName()}`)
     delay(() => updateData(state, { docId: roomId }))
   }
@@ -394,6 +525,7 @@ function App() {
   
       setPlayers(state.players)
       PlayAudio.click()
+      resetSelector()
   
       addLog(state, `จบเทิร์น`)
 
@@ -416,7 +548,7 @@ function App() {
     addCardToTrash(card, state)
 
     resetSelector()
-    PlayAudio.click()
+    PlayAudio.drawCard()
 
     addLog(state, "ทิ้งการ์ด " + card.showName())
     delay(() => updateData(state, { docId: roomId }))
@@ -441,7 +573,7 @@ function App() {
     setPlayers(state.players)
 
     resetSelector()
-    PlayAudio.click()
+    PlayAudio.drawCard()
 
     addLog(state, "สลับการ์ด " + card.showName())
     delay(() => updateData(state, { docId: roomId }))
@@ -464,6 +596,10 @@ function App() {
     resetSelector()
     PlayAudio.drawCard()
 
+    if (isMyTurn) 
+      decreaseAction(state)
+    
+
     addLog(state, `มอบการ์ด ${card.showName()} ให้ ${player.name}`)
     delay(() => updateData(state, { docId: roomId }))
   }
@@ -485,9 +621,14 @@ function App() {
 
     decreaseAction(state)
     setDiceResult(result)
-    PlayAudio.click()
 
-    addLog(state, "ทอยลูกเต๋า " + result.join(", "))
+    if (selectedWeapon) {
+      playSoundByAction(selectedWeapon.name)
+    } else {
+      PlayAudio.click()
+    }
+
+    addLog(state, `ใช้ ${selectedWeapon.name} ` + result.join(", "))
     delay(() => updateData(state, { docId: roomId }))
   }
 
@@ -495,13 +636,16 @@ function App() {
     const state = { log, mission, players }
 
     delay(() => {
+      if (zombie.name.includes("skinner")) 
+        state.mission.zombies = [...state.mission.zombies, buildZombie("crawler", { position: zombie.position })]
+      
       state.mission.zombies = state.mission.zombies.filter(_zombie => _zombie.id !== zombie.id)
       setMission(state.mission)
       
       gainExp(state, zombie.exp)
       PlayAudio.randomZombieDead()
 
-      addLog(state,`ฆ่า ${zombie.name} ได้รับ exp+${zombie.exp}`)
+      addLog(state,`ได้ฆ่า ${zombie.name} ได้รับ exp+${zombie.exp}`)
       delay(() => updateData(state, { docId: roomId }))
     })
   }
@@ -523,15 +667,31 @@ function App() {
     const state = { log, mission, players }
     
     state.mission.blocks.map(blockName => {
-      state.mission[blockName].objectives = state.mission[blockName].objectives.filter(_obj => _obj.id !== objective.id)
+      state.mission[blockName].objectives = state.mission[blockName].objectives
+        .filter(_obj => _obj.id !== objective.id)
     })
     setMission(state.mission)
     decreaseAction(state)
 
     gainExp(state, 5)
-    PlayAudio.click()
+    PlayAudio.openBox()
 
     addLog(state, "เก็บกล่องทรัพยากรสีแดง ได้รับ exp+5 ")
+    delay(() => updateData(state, { docId: roomId }))
+  }
+
+  const toggleZombieSpawn = (spawn) => {
+    const state = { log, mission, players }
+    
+    state.mission.blocks.map(blockName => {
+      state.mission[blockName].spawnPoints = state.mission[blockName].spawnPoints
+        .filter(_spawn => _spawn.id !== spawn.id)
+    })
+    setMission(state.mission)
+    decreaseAction(state)
+    PlayAudio.openBox()
+
+    addLog(state, "ทำลายจุดเกิดซอมบี้ ")
     delay(() => updateData(state, { docId: roomId }))
   }
 
@@ -550,11 +710,37 @@ function App() {
     setMission(state.mission)
 
     decreaseAction(state)
-    PlayAudio.click()
+    PlayAudio.openBox()
 
     const card = drawnCardIds.map(mapMasterDeck)[0]
 
     addLog(state, `เก็บกล่องอาวุธ ได้รับ ${card.showName()}`)
+    delay(() => updateData(state, { docId: roomId }))
+  }
+
+  const onClickThings = (thing) => {
+    const state = { log, mission, players }
+
+    state.mission.things = state.mission.things.filter(_thing => { 
+      return _thing.id !== thing.id
+    })
+
+    // if (thing.name === "door") {
+    //   state.mission.things.map(_thing => { 
+    //     if (_thing.id === thing.id) {
+    //       _thing.isOpen = !_thing.isOpen
+    //     }
+    //     return _thing
+    //   })
+    // } 
+    // else {
+    //   state.mission.things = state.mission.things.filter(_thing => { 
+    //     return _thing.id !== thing.id
+    //   })
+    // }
+    setMission(state.mission)
+    
+    addLog(state, `จัดการ ${thing.name}`)
     delay(() => updateData(state, { docId: roomId }))
   }
 
@@ -573,7 +759,7 @@ function App() {
     decreaseAction(state)
 
     const doorActionTxt = door.isOpen ? "พังประตู" : "ปิดประตู"
-    PlayAudio.click()
+    PlayAudio.open()
 
     addLog(state, doorActionTxt)
     delay(() => updateData(state, { docId: roomId }))
@@ -589,18 +775,7 @@ function App() {
     setRule(state.rule)
     PlayAudio.click()
 
-    addLog(state, "spawn card " + drawnCardIds.join(", "))
-    delay(() => updateData(state, { docId: roomId }))
-  }
-
-  const clearSpawnCardClicked = () => {
-    const state = { log, rule }
-
-    state.rule = { ...state.rule, displaySpawnDeck: []}
-    setRule(state.rule)
-    PlayAudio.click()
-
-    addLog(state, "clear spawn card")
+    addLog(state, "ซอมบี้ปรากฏ " + drawnCardIds.join(", "))
     delay(() => updateData(state, { docId: roomId }))
   }
 
@@ -610,10 +785,12 @@ function App() {
 
     state.players = state.players.map(_player => {
       if (_player.sessionId === me.sessionId) {
-        if (marker.includes("skill2") && _player.level < 7) 
-          return _player
-        else 
+        if (marker.includes("skill2") && _player.level >= 7) 
           _player.maxAction = 4
+
+        if (marker.includes("skill2") && _player.level < 7) {
+          return _player
+        }
 
         if (marker.includes("skill3") && _player.level < 19) 
           return _player
@@ -655,34 +832,90 @@ function App() {
   const mapCss = (blockName) => {
     const block = mission[blockName]
     if (!block) return null
-
     const rotateKey = `rotate-${block.rotate}`
-
     return { 
-      [rotateKey]: true,
-      [`map${block.tile}`]: true
+      [rotateKey]: true
      }
   }
 
+  const mapStyle = (blockName) => {
+    const block = mission[blockName]
+    if (!block) return null
+    return { backgroundImage: `url('img/map_${block.tile}.png')` }
+  }
+
   const mapZombies = () => {
+    const backgroundStyle = (zombie) => ({ backgroundImage: `url('img/${zombie.name}.png')` })
+
     return mission.zombies.map(zombie => (
       <Draggable
         position={zombie.position} 
         onStop={(e, pos) => onZombieControlled(e, pos, zombie.id)}
       >
-        <div className={classNames(`zombie-wrapper hoverable zombie-index-${zombie.name} zombie-index-${zombie.type}`)}>
+        <div className={classNames(`zombie-wrapper hoverable blink_me_sec zombie-index-${zombie.name} zombie-index-${zombie.type}`)}>
          {(isMyTurn || isAdmin) ? (
             <div>
-              <div id={`zombie-${zombie.id}`} className={`zombie ${zombie.name} breathing`} data-bs-toggle="dropdown" aria-expanded="false"></div>
-              <ul class="dropdown-menu" aria-labelledby={`zombie-${zombie.id}`}>
+              <div id={`zombie-${zombie.id}`} className={`zombie breathing ${zombie.name}`} style={backgroundStyle(zombie)} data-bs-toggle="dropdown" aria-expanded="false"></div>
+              <ul class="dropdown-menu skin-dropdown-menu" aria-labelledby={`zombie-${zombie.id}`}>
                 <li><div class="dropdown-item" onClick={() => killZombieClicked(zombie)}>ฆ่า [{zombie.name}]</div></li>
                 <li><div class="dropdown-item red" onClick={() => trashZombieClicked(zombie)}>ทิ้ง [{zombie.name}]</div></li>
+                {zombie.type === "abomination" && (
+                  <li>
+                    <div class="dropdown-item skin-dropdown-menu">
+                      <div className='bold'>
+                        {getZombieTrans(zombie.name).name}
+                      </div>
+                      {getZombieTrans(zombie.name).desc}
+                    </div>
+                  </li>
+                )}
               </ul>
           </div>
-         ) : <div className={`zombie ${zombie.name} breathing`}></div>}
+         ) : <div className={`zombie breathing ${zombie.name}`} style={backgroundStyle(zombie)}></div>}
         </div>
       </Draggable>
     ))
+  }
+
+  const mapThings = () => {
+    return mission.things.map(thing => 
+      <Fragment>
+        {thing.name ==="door" && 
+          <img src={thing.isOpen ? "img/opened_door.png"  : "img/closed_door.png" }
+            className={classNames("door hoverable", { ["rotate-" + thing.rotate]: true })} 
+            style={thing.position} 
+            alt='door' 
+            onDoubleClick={() => onClickThings(thing)}
+          />
+        }
+        {thing.name ==="openedDoor" && 
+          <img src={"img/opened_door.png" }
+            className={classNames("door hoverable", { ["rotate-" + thing.rotate]: true })} 
+            style={thing.position} 
+            alt='door' 
+            onDoubleClick={() => onClickThings(thing)}
+          />
+        }
+        {thing.name ==="exit" && 
+          <img src="img/exit.png" 
+            className={classNames("spawn-point hoverable", { ["rotate-" + thing.rotate]: true })} 
+            style={thing.position} 
+            alt='spawn-point' 
+            onDoubleClick={() => onClickThings(thing)}
+          />
+        }
+        {thing.name ==="spawnPoint" && 
+          <img 
+            id={thing.id}
+            src="img/spawn_point.png" 
+            className={classNames("spawn-point hoverable", { ["rotate-" + thing.rotate]: true })} 
+            style={thing.position} 
+            alt='spawn-point' 
+            onDoubleClick={() => onClickThings(thing)}
+          />
+        }
+      </Fragment>
+    )
   }
 
   const mapExit = () => {
@@ -764,7 +997,7 @@ function App() {
     if (!_log) return null
 
     let actor = players.find(_player => _player.sessionId === _log.sessionId)
-    actor = actor ? `<span class="bold">${Player.showFullname(actor)}</span>:` : ""
+    actor = actor ? `<span class="bold">${actor?.name}</span>:` : ""
     const message = `${actor} ${_log.msg}`
 
     return <div dangerouslySetInnerHTML={{ __html: `<div>- ${message}</div>` }}></div>
@@ -775,7 +1008,7 @@ function App() {
   if (!mission) return "loading"
 
   return (
-    <div className="App">
+    <div className="App" onMouseMove={handleMouseMove} onKeyDown={handleKeyDown} tabIndex="0">
       <button ref={modalTrigger} type="button" class="btn btn-sm btn-primary modalTrigger" data-bs-toggle="modal" data-bs-target="#confirmModal" ></button>
 
      {/* ACTION MODAL */}
@@ -839,8 +1072,9 @@ function App() {
       {isAdmin && (
         <Draggable>
           <div className='admin-board'>
-            <DebugTool mainState={mainState} setRule={setRule} setPlayers={setPlayers} restartClicked={restartClicked} spawnZombieClicked={spawnZombieClicked} 
-              drawSpawnCardClicked={drawSpawnCardClicked} clearSpawnCardClicked={clearSpawnCardClicked} setShowSpawner={setShowSpawner} />
+            <DebugTool mainState={mainState} setRule={setRule} setPlayers={setPlayers} setDeck={setDeck} restartClicked={restartClicked} 
+              spawnZombieClicked={spawnZombieClicked} drawSpawnCardClicked={drawSpawnCardClicked} setShowSpawner={setShowSpawner} showSpawner={showSpawner} 
+              addLog={addLog} spawnerPosition={spawnerPosition} setMission={setMission} me={me} />
             {/* <button type='button' className='btn btn-primary' onClick={() => toggleIsLoading(!isLoading)}>toggle loading</button> */}
           </div>
         </Draggable>
@@ -894,16 +1128,19 @@ function App() {
       {me && me.hero && (
         <PlayerBoard rollDiceClicked={rollDiceClicked} playerStatChanged={playerStatChanged} players={players} searchItemClicked={searchItemClicked} 
           showDiceClicked={showDiceClicked} cardClicked={cardClicked} endTurnClicked={endTurnClicked} me={me} rule={rule} showDice={showDice} 
-          heroMarkerToggled={heroMarkerToggled}
+          heroMarkerToggled={heroMarkerToggled} selectWeapon={selectWeapon} diceBonus={diceBonus} setDiceBonus={setDiceBonus}
         />
       )}
 
-      <div class="log-wrapper">
-        {log.slice(Math.max(log.length - 11, 0)).map(renderLog)}
-      </div>
+      <Draggable>
+        <div className="log-wrapper">
+          {log.slice(Math.max(log.length - 15, 0)).map(renderLog)}
+        </div>
+      </Draggable>
 
       <div className='main'>
         <MapPlayer players={players} onPlayerControlled={onPlayerControlled} />
+        {mapThings()}
         {mapZombies()}
         {mapExit()}
 
@@ -919,60 +1156,60 @@ function App() {
         )}
 
         <div class="map-row">
-          <div class={classNames("block block-1", mapCss("block_1"))}>
-            <MapZombieSpawnPoint mission={mission} blockName={"block_1"} />
+          <div class={classNames("block block-1 map", mapCss("block_1"))} style={mapStyle("block_1")}>
+            <MapZombieSpawnPoint mission={mission} blockName={"block_1"} onClick={toggleZombieSpawn} />
             <MapObjective mission={mission} blockName={"block_1"} onClick={takeObjectiveClicked} />
             <MapEpicWeapon mission={mission} blockName={"block_1"} onClick={takeEpicWeaponClicked} />
             <MapDoor mission={mission} blockName={"block_1"} onClick={toggleDoorClicked} />
           </div>
-          <div class={classNames("block block-2", mapCss("block_2"))}>
-            <MapZombieSpawnPoint mission={mission} blockName={"block_2"} />
+          <div class={classNames("block block-2 map", mapCss("block_2"))} style={mapStyle("block_2")}>
+            <MapZombieSpawnPoint mission={mission} blockName={"block_2"} onClick={toggleZombieSpawn} />
             <MapObjective mission={mission} blockName={"block_2"} onClick={takeObjectiveClicked} />
             <MapEpicWeapon mission={mission} blockName={"block_2"} onClick={takeEpicWeaponClicked} />
             <MapDoor mission={mission} blockName={"block_2"} onClick={toggleDoorClicked} />
           </div>
-          <div class={classNames("block block-3", mapCss("block_3"))}>
-            <MapZombieSpawnPoint mission={mission} blockName={"block_3"} />
+          <div class={classNames("block block-3 map", mapCss("block_3"))} style={mapStyle("block_3")}>
+            <MapZombieSpawnPoint mission={mission} blockName={"block_3"} onClick={toggleZombieSpawn} />
             <MapObjective mission={mission} blockName={"block_3"} onClick={takeObjectiveClicked} />
             <MapEpicWeapon mission={mission} blockName={"block_3"} onClick={takeEpicWeaponClicked} />
             <MapDoor mission={mission} blockName={"block_3"} onClick={toggleDoorClicked} />
           </div>
         </div>
         <div class="map-row">
-          <div class={classNames("block block-4", mapCss("block_4"))}>
-            <MapZombieSpawnPoint mission={mission} blockName={"block_4"} />
+          <div class={classNames("block block-4 map", mapCss("block_4"))} style={mapStyle("block_4")}>
+            <MapZombieSpawnPoint mission={mission} blockName={"block_4"} onClick={toggleZombieSpawn} />
             <MapObjective mission={mission} blockName={"block_4"} onClick={takeObjectiveClicked} />
             <MapEpicWeapon mission={mission} blockName={"block_4"} onClick={takeEpicWeaponClicked} />
             <MapDoor mission={mission} blockName={"block_4"} onClick={toggleDoorClicked} />
           </div>
-          <div class={classNames("block block-5", mapCss("block_5"))}>
-            <MapZombieSpawnPoint mission={mission} blockName={"block_5"} />
+          <div class={classNames("block block-5 map", mapCss("block_5"))} style={mapStyle("block_5")}>
+            <MapZombieSpawnPoint mission={mission} blockName={"block_5"} onClick={toggleZombieSpawn} />
             <MapObjective mission={mission} blockName={"block_5"} onClick={takeObjectiveClicked} />
             <MapEpicWeapon mission={mission} blockName={"block_5"} onClick={takeEpicWeaponClicked} />
             <MapDoor mission={mission} blockName={"block_5"} onClick={toggleDoorClicked} />
           </div>
-          <div class={classNames("block block-6", mapCss("block_6"))}>
-            <MapZombieSpawnPoint mission={mission} blockName={"block_6"} />
+          <div class={classNames("block block-6 map", mapCss("block_6"))} style={mapStyle("block_6")}>
+            <MapZombieSpawnPoint mission={mission} blockName={"block_6"} onClick={toggleZombieSpawn} />
             <MapObjective mission={mission} blockName={"block_6"} onClick={takeObjectiveClicked} />
             <MapEpicWeapon mission={mission} blockName={"block_6"} onClick={takeEpicWeaponClicked} />
             <MapDoor mission={mission} blockName={"block_6"} onClick={toggleDoorClicked} />
           </div>
         </div>
         <div class="map-row">
-          <div class={classNames("block block-7", mapCss("block_7"))}>
-            <MapZombieSpawnPoint mission={mission} blockName={"block_7"} />
+          <div class={classNames("block block-7 map", mapCss("block_7"))} style={mapStyle("block_7")}>
+            <MapZombieSpawnPoint mission={mission} blockName={"block_7"} onClick={toggleZombieSpawn} />
             <MapObjective mission={mission} blockName={"block_7"} onClick={takeObjectiveClicked} />
             <MapEpicWeapon mission={mission} blockName={"block_7"} onClick={takeEpicWeaponClicked} />
             <MapDoor mission={mission} blockName={"block_7"} onClick={toggleDoorClicked} />
           </div>
-          <div class={classNames("block block-8", mapCss("block_8"))}>
-            <MapZombieSpawnPoint mission={mission} blockName={"block_8"} />
+          <div class={classNames("block block-8 map", mapCss("block_8"))} style={mapStyle("block_8")}>
+            <MapZombieSpawnPoint mission={mission} blockName={"block_8"} onClick={toggleZombieSpawn} />
             <MapObjective mission={mission} blockName={"block_8"} onClick={takeObjectiveClicked} />
             <MapEpicWeapon mission={mission} blockName={"block_8"} onClick={takeEpicWeaponClicked} />
             <MapDoor mission={mission} blockName={"block_8"} onClick={toggleDoorClicked} />
           </div>
-          <div class={classNames("block block-9", mapCss("block_9"))}>
-            <MapZombieSpawnPoint mission={mission} blockName={"block_9"} />
+          <div class={classNames("block block-9 map", mapCss("block_9"))} style={mapStyle("block_9")}>
+            <MapZombieSpawnPoint mission={mission} blockName={"block_9"} onClick={toggleZombieSpawn} />
             <MapObjective mission={mission} blockName={"block_9"} onClick={takeObjectiveClicked} />
             <MapEpicWeapon mission={mission} blockName={"block_9"} onClick={takeEpicWeaponClicked} />
             <MapDoor mission={mission} blockName={"block_9"} onClick={toggleDoorClicked} />

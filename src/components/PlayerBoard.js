@@ -7,7 +7,7 @@ import ItemCard from './ItemCard';
 
 export default function PlayerBoard(props) {
   const { rollDiceClicked, players, playerStatChanged, showDice, searchItemClicked, showDiceClicked, cardClicked, 
-    endTurnClicked, heroMarkerToggled, me, rule } = props  
+    endTurnClicked, selectWeapon, heroMarkerToggled, me, rule, diceBonus, setDiceBonus } = props  
 
   const isMyTurn = me && me.sessionId === rule?.turnSessionId
 
@@ -35,6 +35,43 @@ export default function PlayerBoard(props) {
     return <span className="blue">BLUE</span>
   }
 
+  const readyWeaponClicked = (card) => {
+    showDiceClicked(card.dice + diceBonus)
+    selectWeapon(card)
+  }
+
+  const renderDiceOption = () => {
+    const equipItems = me.equipItemIds.map(mapMasterDeck).filter(card => card.type === "weapon")
+    const backpackItems = me.backpackItemIds.map(mapMasterDeck).filter(card => card.type === "weapon")
+    const weaponPassive = (card) => {
+      return (
+        <Fragment>
+          {card?.hasSniperSkill() && (
+            <span class="green-text">Sniper</span>
+          )}
+          {card?.hasReloadSkill() && (
+            <span class="alert-text">Reload</span>
+          )}
+        </Fragment>
+      )
+    }
+
+    return (
+      <Fragment>
+        {equipItems.map(card => 
+          <li><div class="dropdown-item" onClick={() => readyWeaponClicked(card)}>
+            [{card.dice}<span class="green">{diceBonus > 0 ? `+${diceBonus}` : ""}</span>] {card.name} {weaponPassive(card)}
+          </div></li>
+        )}
+
+        {backpackItems.map(card => 
+          <li><div class="dropdown-item red" onClick={() => readyWeaponClicked(card)}>
+            [{card.dice}<span class="green">{diceBonus > 0 ? `+${diceBonus}` : ""}</span>] {card.name} {weaponPassive(card)}
+          </div></li>)}
+      </Fragment>
+    )
+  }
+
   return (
     <Draggable>
       <div className='player-board'>
@@ -56,36 +93,40 @@ export default function PlayerBoard(props) {
             <div>
               LEVEL: {me.level} {renderPlayerStatChanger(me, "level")}
             </div>	
+            <div>
+              DICE: {diceBonus > 0 ? <span class="green">+{diceBonus}</span> : <span class="red">{diceBonus}</span>}
+              <span class="stat-changer-wrapper">
+                <i class="fa fa-toggle-up stat-changer hoverable green" onClick={() => setDiceBonus(diceBonus+1)}></i>
+                <i class="fa fa-toggle-down stat-changer hoverable red" onClick={() => setDiceBonus(diceBonus-1)}></i>
+              </span>
+            </div>	
             <hr />
 
             {/* PLAYER ACTION BUTTON */}
             <button type="button" class="btn btn-success btn-sm" onClick={() => searchItemClicked()}>ค้นหา</button>
             <div class="btn-group" role="group">
-              <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">ลูกเต๋า</button>
+              <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">ใช้อาวุธ</button>
               <ul class="dropdown-menu">
                 {showDice === 0 
-                  ? (
-                  <Fragment>
-                    <li><div class="dropdown-item" onClick={() => showDiceClicked(1)}>1</div></li>
-                    <li><div class="dropdown-item" onClick={() => showDiceClicked(2)}>2</div></li>
-                    <li><div class="dropdown-item" onClick={() => showDiceClicked(3)}>3</div></li>
-                    <li><div class="dropdown-item" onClick={() => showDiceClicked(4)}>4</div></li>
-                    <li><div class="dropdown-item" onClick={() => showDiceClicked(5)}>5</div></li>
-                    <li><div class="dropdown-item" onClick={() => showDiceClicked(6)}>6</div></li>
-                  </Fragment>
-                  ) 
-                  : <li><div class="dropdown-item" onClick={() => showDiceClicked(0)}>รีเซตลูกเต๋า</div></li>}
+                  ? (renderDiceOption()) 
+                  : <li><div class="dropdown-item" onClick={() => { showDiceClicked(0); selectWeapon(null) }}>เก็บอาวุธ</div></li>}
               </ul>
             </div>
             <button type="button" id="roll-button" class="btn btn-primary btn-sm">ทอยลูกเต๋า</button>
-            <div class="btn-group" role="group">
-              {isMyTurn && (
-                <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">จบเทิร์น</button>
-              )}
-              <ul class="dropdown-menu">          
-                <li><div class="dropdown-item" onClick={() => endTurnClicked()}>ยืนยัน?</div></li>
+
+            {/* <div class="btn-group" role="group">
+              <button type="button" class="btn btn-primary btn-sm">+/- ลูกเต๋า</button>
+              <ul class="dropdown-menu">
+                {showDice === 0 
+                  ? (renderDiceOption()) 
+                  : <li><div class="dropdown-item" onClick={() => { showDiceClicked(0); selectWeapon(null) }}>รีเซตลูกเต๋า</div></li>}
               </ul>
-            </div>
+            </div> */}
+
+           
+            {isMyTurn && (
+              <button type="button" class="btn btn-secondary btn-sm" onClick={endTurnClicked}>จบเทิร์น</button>
+            )}
           </div>
           <div className='player-detail'>
             {me.hero && (
@@ -109,7 +150,7 @@ export default function PlayerBoard(props) {
             <span className={classNames({ "blink_me alert-text": me.equipItemIds.length > 2 })}>
               EQUIP
             </span>
-            <div class="equip">
+            <div className={classNames("equip", { "blink_me": me.equipItemIds.length > 2 })}>
               {me.equipItemIds.map(mapMasterDeck).map(card => (
                 <ItemCard card={card} classes="blink_me_sec" onClick={() => cardClicked(card)} />
               ))}
@@ -117,7 +158,7 @@ export default function PlayerBoard(props) {
             <span className={classNames({ "blink_me alert-text": me.backpackItemIds.length > 3 })}>
               BACKPACK
             </span>
-            <div class="backpack">
+            <div className={classNames("backpack", { "blink_me alert-text": me.backpackItemIds.length > 3 })}>
               {me.backpackItemIds.map(mapMasterDeck).map(card => (
                 <ItemCard card={card} classes="blink_me_sec" onClick={() => cardClicked(card)} />
               ))}
@@ -125,7 +166,7 @@ export default function PlayerBoard(props) {
 
             <br />
             <span class="danger-code">CODE {renderDangerCode()}</span> <br />
-            <span class="danger-code">[<span class="yellow">7</span> <span class="orange">19</span> <span class="red">43</span>]</span>
+            <span class="danger-code">[<span class="blue">0</span> <span class="lightyellow">7</span> <span class="orange">19</span> <span class="red">43</span>]</span>
           </div>
         </div>
       </div>

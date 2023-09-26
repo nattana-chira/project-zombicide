@@ -3,8 +3,11 @@ import { buildBrute, buildRunner, buildWalker } from "../Zombie"
 
 const mission_XXX = {
   id: "XXX",
+  star: 2,
   playerSpawnPosition: { x: 20, y: 400 },
+  exits: [],
   blocks: ["block_1", "block_2", "block_3", "block_4", "block_5", "block_6", "block_7", "block_8", "block_9"],
+  things: [],
   zombies: [
     buildWalker({ position: { x: 560, y: 200 } }),
     buildWalker({ position: { x: 560, y: 430 } }),

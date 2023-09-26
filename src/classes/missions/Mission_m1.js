@@ -1,3 +1,4 @@
+import { randomIdOnlyNumber } from "../Utils"
 import { map1v, map7r, map3r, map5r, map9r, map6r, map8v, map2v, map4v } from "./MissionObjectPlacer"
 
 const mission_m1 = {
@@ -5,6 +6,7 @@ const mission_m1 = {
   star: 2,
   playerSpawnPosition: { x: 840, y: 790 },
   blocks: ["block_1", "block_2", "block_3", "block_4", "block_5", "block_6", "block_7", "block_8", "block_9"],
+  things: [],
   zombies: [],
   exits: [
     {
@@ -49,6 +51,7 @@ const mission_m1 = {
     rotate: "0deg",
     spawnPoints: [
       { 
+        id: randomIdOnlyNumber(),
         visible: true,
         rotate: "90deg",
         position: { left: "520px", top: "-25px" }
@@ -61,6 +64,7 @@ const mission_m1 = {
     rotate: "0deg",
     spawnPoints: [
       { 
+        id: randomIdOnlyNumber(),
         visible: true,
         rotate: "270deg",
         position: { left: "-25px", top: "-25px" }
@@ -79,6 +83,7 @@ const mission_m1 = {
     rotate: "180deg",
     spawnPoints: [
       { 
+        id: randomIdOnlyNumber(),
         visible: true,
         rotate: "0deg",
         position: { left: "550px", top: "0px" }

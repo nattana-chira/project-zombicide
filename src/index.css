@@ -17,9 +17,46 @@ code {
 .dropdown-item:hover {
   cursor: pointer;
 }
+.skin-dropdown-menu {
+  width: 300px !important;
+  white-space: wrap;
+}
+.long-dropdown-menu {
+  max-height: 700px !important;
+  overflow-y: scroll !important;
+}
+
+.btn-green {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: green;
+  --bs-btn-border-color: green;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: green;
+}
+.btn-brown {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #964B00;
+  --bs-btn-border-color: #964B00;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #814810;
+}
+.btn-yellow {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: rgb(255, 196, 0);
+  --bs-btn-border-color: rgb(255, 196, 0);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: orange;
+}
+.spawn-zombie-btn {
+  margin-top:5px;
+  width: 280px;
+}
 
 .red {
   color: red !important;
+}
+.lightyellow {
+  color: yellow
 }
 .yellow {
   color: rgba(255, 208, 0, 0.911);
@@ -114,7 +151,7 @@ code {
 
 .log-wrapper {
   min-height: 400px;
-  width: 300px;
+  width: 305px;
   background-color: honeydew;
   box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.30);
   text-align: left;
@@ -247,14 +284,14 @@ code {
 
 .admin-board {
   padding: 10px 10px 10px 10px;
-  width: 300px;
-  height: 300px;
+  width: 305px;
+  height: 350px;
   box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.30);
   background-color: wheat;
   position: fixed;
   bottom: 20px;
   left: 20px;
-  z-index: 100;
+  z-index: 101;
 }
 
 .new-player-board {
@@ -495,16 +532,94 @@ code {
   z-index: 3;
 
   .player-name {
+    background-color: rgba(0, 0, 0, .85);
+    border-radius: 5px;
     color: green;
     font-weight: bold;
     text-align: center;
   }
 
   .player {
-    width: 100px;
-    height: 120px;
+    width: 110px;
+    height: 130px;
     background-size: cover;
-    background-image: url("../public/img/player.png");
+  }
+  .derek {
+    width: 110px;
+    height: 130px;
+  }
+  .cathy {
+    height: 130px;
+  }
+  .belle {
+    width: 140px;
+  }
+  .amy {
+    width: 120px;
+    height: 140px;
+  }
+  .elsa {
+    height: 150px;
+  }
+  .julien {
+    width: 100px;
+    height: 130px;
+  }
+  .dan {
+    width: 100px;
+    height: 140px;
+  }
+  .kim {
+    width: 100px;
+    height: 140px;
+  }
+  .josh {
+    width: 100px;
+    height: 135px;
+  }
+  .james {
+    width: 100px;
+    height: 135px;
+  }
+  .jane {
+    width: 100px;
+    height: 135px;
+  }
+  .jeff {
+    width: 90px;
+    height: 130px;
+  }
+  .phil {
+    width: 110px;
+    height: 130px;
+  }
+  .neema {
+    width: 110px;
+    height: 130px;
+  }
+  .adam {
+    width: 120px;
+    height: 135px;
+  }
+  .raoul {
+    width: 110px;
+    height: 130px;
+  }
+  .shannon {
+    width: 120px;
+    height: 135px;
+  }
+  .maddie {
+    width: 95px;
+    height: 130px;
+  }
+  .ned {
+    width: 95px;
+    height: 125px;
+  }
+  .wanda {
+    width: 100px;
+    height: 130px;
   }
 }
 
@@ -527,76 +642,99 @@ code {
   z-index: 20 !important;
 }
 
+.crawler {
+  width: 95px;
+  height: 95px;
+}
+
 .walker {
   width: 80px;
   height: 130px;
-  background-image: url("../public/img/walker.png");
 }
 
 .runner {
   width: 110px;
   height: 110px;
-  background-image: url("../public/img/runner.png");
 }
 
 .brute {
   width: 150px;
   height: 170px;
-  background-image: url("../public/img/brute.png");
 }
 
 .dogz {
   width: 130px;
   height: 90px;
-  background-image: url("../public/img/dogz.png");
 }
 
 .crowz {
   width: 150px;
   height: 120px;
-  background-image: url("../public/img/crowz.png");
 }
 
-.abominacop {
+.abominacop, .abominawild, .hobomination, .patient_zero {
   width: 200px;
   height: 250px;
-  background-image: url("../public/img/abominacop.png");
+}
+
+.abominarat {
+  width: 250px;
+  height: 230px;
+}
+
+.chupacabra {
+  width: 250px;
+  height: 170px;
+}
+
+.abomination {
+  width: 200px;
+  height: 250px;
 }
 
 .toxic_walker {
   width: 80px;
   height: 130px;
-  background-image: url("../public/img/toxic_walker.png");
 }
 
 .toxic_runner {
   width: 100px;
   height: 120px;
-  background-image: url("../public/img/toxic_runner.png");
 }
 
 .toxic_brute {
   width: 150px;
   height: 170px;
-  background-image: url("../public/img/toxic_brute.png");
 }
 
 .berserker_walker {
   width: 85px;
   height: 130px;
-  background-image: url("../public/img/berserker_walker.png");
 }
 
 .berserker_runner {
   width: 110px;
   height: 130px;
-  background-image: url("../public/img/berserker_runner.png");
 }
 
 .berserker_brute {
   width: 130px;
   height: 165px;
-  background-image: url("../public/img/berserker_brute.png");
+}
+
+.skinner_walker {
+  width: 85px;
+  height: 130px;
+}
+
+.skinner_runner {
+  width: 120px;
+  height: 130px;
+}
+
+.skinner_brute {
+  width: 130px;
+  height: 165px;
 }
 
 .zombie-wrapper {
@@ -614,94 +752,8 @@ code {
   display: flex;
 }
 
-.map1v {
+.map {
   background-size: cover;
-  background-image: url("../public/img/map_1v.png");
-}
-
-.map1r {
-  background-size: cover;
-  background-image: url("../public/img/map_1r.png");
-}
-
-.map2v {
-  background-size: cover;
-  background-image: url("../public/img/map_2v.png");
-}
-
-.map2r {
-  background-size: cover;
-  background-image: url("../public/img/map_2r.png");
-}
-
-.map3v {
-  background-size: cover;
-  background-image: url("../public/img/map_3v.png");
-}
-
-.map3r {
-  background-size: cover;
-  background-image: url("../public/img/map_3r.png");
-}
-
-.map4v {
-  background-size: cover;
-  background-image: url("../public/img/map_4v.png");
-}
-
-.map4r {
-  background-size: cover;
-  background-image: url("../public/img/map_4r.png");
-}
-
-.map5v {
-  background-size: cover;
-  background-image: url("../public/img/map_5v.png");
-}
-
-.map5r {
-  background-size: cover;
-  background-image: url("../public/img/map_5r.png");
-}
-
-.map6v {
-  background-size: cover;
-  background-image: url("../public/img/map_6v.png");
-}
-
-.map6r {
-  background-size: cover;
-  background-image: url("../public/img/map_6r.png");
-}
-
-.map7v {
-  background-size: cover;
-  background-image: url("../public/img/map_7v.png");
-}
-
-.map7r {
-  background-size: cover;
-  background-image: url("../public/img/map_7r.png");
-}
-
-.map8v {
-  background-size: cover;
-  background-image: url("../public/img/map_8v.png");
-}
-
-.map8r {
-  background-size: cover;
-  background-image: url("../public/img/map_8r.png");
-}
-
-.map9v {
-  background-size: cover;
-  background-image: url("../public/img/map_9v.png");
-}
-
-.map9r {
-  background-size: cover;
-  background-image: url("../public/img/map_9r.png");
 }
 
 .rotate-0deg {
@@ -763,4 +815,13 @@ code {
   50% {
     opacity: 0;
   }
+}
+
+.main {
+  /* filter: brightness(100%); */
+}
+
+#canvas {
+  position: absolute;
+  z-index: -1;
 }

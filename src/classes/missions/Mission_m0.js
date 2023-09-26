@@ -7,6 +7,7 @@ const mission_m0 = {
   star: 1,
   playerSpawnPosition: { x: 20, y: 400 },
   blocks: ["block_1", "block_2"],
+  things: [],
   zombies: [
     buildWalker({ position: { x: 560, y: 200 } }),
     buildWalker({ position: { x: 560, y: 430 } }),
@@ -30,11 +31,13 @@ const mission_m0 = {
     rotate: "270deg",
     spawnPoints: [
       { 
+        id: randomIdOnlyNumber(),
         visible: true,
         rotate: "90deg",
         position: { left: "520px", top: "-25px" }
       },
       { 
+        id: randomIdOnlyNumber(),
         visible: true,
         rotate: "180deg",
         position: { right: "0px", bottom: "0px" }

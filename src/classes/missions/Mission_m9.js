@@ -7,6 +7,7 @@ const mission_m9 = {
   star: 2,
   playerSpawnPosition: { x: 20, y: 500 },
   blocks: ["block_1", "block_2", "block_4", "block_5"],
+  things: [],
   zombies: [],
   exits: [],
   block_1: {
@@ -20,6 +21,7 @@ const mission_m9 = {
     rotate: "0deg",
     spawnPoints: [
       { 
+        id: randomIdOnlyNumber(),
         visible: true,
         rotate: "0deg",
         position: { left: "-50px", top: "0px" }
@@ -38,11 +40,13 @@ const mission_m9 = {
     rotate: "270deg",
     spawnPoints: [
       { 
+        id: randomIdOnlyNumber(),
         visible: true,
         rotate: "270deg",
         position: { left: "-25px", top: "-25px" }
       },
       { 
+        id: randomIdOnlyNumber(),
         visible: true,
         rotate: "180deg",
         position: { left: "550px", top: "550px" }
