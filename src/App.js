@@ -35,7 +35,6 @@ function App() {
   const [selectedWeapon, selectWeapon] = useState(null)
   const [diceResult, setDiceResult] = useState([])
   const [diceBonus, setDiceBonus] = useState(0)
-  const [isRaining, toggleRaining] = useState(false)
 
   const queryParams = new URLSearchParams(window.location.search)
   const sessionId = queryParams.get("sessionId")
@@ -436,7 +435,7 @@ function App() {
   }
 
   const spawnZombieClicked = (zombieName, number = 1) => {
-    const state = { log, mission }
+    const state = { rule, log, mission }
 
     createArray(number).map(() => {
       const x = spawnerPosition.x + randomNumber(-50, 50)
@@ -447,7 +446,8 @@ function App() {
     PlayAudio.randomZombieSpawn()
 
     if (zombieName === "chupacabra") {
-      toggleRaining(true)
+      state.rule.isRaining = true
+      setRule(state.rule)
       addLog(state, "สภาพอากาศเปลี่ยน... <span class='purple'>ฝนตก</span>")
     }
 
@@ -1018,7 +1018,7 @@ function App() {
     <div className="App" onMouseMove={handleMouseMove} onKeyDown={handleKeyDown} tabIndex="0">
       <button ref={modalTrigger} type="button" class="btn btn-sm btn-primary modalTrigger" data-bs-toggle="modal" data-bs-target="#confirmModal" ></button>
 
-      {isRaining && <Rain />}
+      {rule.isRaining && <Rain />}
 
      {/* ACTION MODAL */}
      <div class="modal" id="confirmModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -1083,7 +1083,7 @@ function App() {
           <div className='admin-board'>
             <DebugTool mainState={mainState} setRule={setRule} setPlayers={setPlayers} setDeck={setDeck} restartClicked={restartClicked} 
               spawnZombieClicked={spawnZombieClicked} drawSpawnCardClicked={drawSpawnCardClicked} setShowSpawner={setShowSpawner} showSpawner={showSpawner} 
-              addLog={addLog} spawnerPosition={spawnerPosition} setMission={setMission} me={me} toggleRaining={toggleRaining} isRaining={isRaining} />
+              addLog={addLog} spawnerPosition={spawnerPosition} setMission={setMission} me={me} />
             {/* <button type='button' className='btn btn-primary' onClick={() => toggleIsLoading(!isLoading)}>toggle loading</button> */}
           </div>
         </Draggable>
@@ -1147,7 +1147,7 @@ function App() {
         </div>
       </Draggable>
 
-      <div className={classNames("main", { raining: isRaining })}>
+      <div className={classNames("main", { raining: rule.isRaining })}>
         <MapPlayer players={players} onPlayerControlled={onPlayerControlled} />
         {mapThings()}
         {mapZombies()}

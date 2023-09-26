@@ -36,7 +36,7 @@ export const initHeroes = [
   buildHero("julien", 3),
   buildHero("kim", 3),
   buildHero("laurie", 3),
-  buildHero("louise", 3),
+  // buildHero("louise", 3),
   buildHero("maddie", 3),
   buildHero("ned", 3),
   buildHero("neema", 3),

@@ -8,7 +8,7 @@ import { abominations } from "../classes/Zombie"
 
 const DebugTool = (props) => {
   const { setRule, setPlayers, setDeck, mainState, restartClicked, spawnZombieClicked, drawSpawnCardClicked,
-    showSpawner, setShowSpawner, addLog, spawnerPosition, setMission, me, toggleRaining, isRaining } = props
+    showSpawner, setShowSpawner, addLog, spawnerPosition, setMission, me } = props
   const players = mainState.players
 
   const queryParams = new URLSearchParams(window.location.search)
@@ -40,6 +40,23 @@ const DebugTool = (props) => {
     setPlayers(state.players)
 
     addLog(state, "เตะผู้เล่น " + Player.showFullname(player))
+    delay(() => updateData(state, { docId: roomId }))
+  }
+
+  const toggleRaining = () => {
+    const state = { log: mainState.log, rule: mainState.rule }
+
+    if (!state.rule.isRaining) {
+      state.rule.isRaining = true
+      setRule(state.rule)
+      addLog(state, "สภาพอากาศเปลี่ยน... <span class='purple'>ฝนตก</span>")
+    } 
+    else {
+      state.rule.isRaining = false
+      setRule(state.rule)
+      addLog(state, "สภาพอากาศเปลี่ยน... <span class='purple'>ฝนหยุดตก</span>")
+    }
+
     delay(() => updateData(state, { docId: roomId }))
   }
 
@@ -107,17 +124,19 @@ const DebugTool = (props) => {
       setRule(state.rule)
       setPlayers(state.players)
 
-      if (!isRaining) {
-        const number = randomNumber(1, 10)
+      if (!state.rule.isRaining) {
+        const number = randomNumber(1, 3)
         if (number === 1) {
-          toggleRaining(true)
+          state.rule.isRaining = true
+          setRule(state.rule)
           addLog(state, "สภาพอากาศเปลี่ยน... <span class='purple'>ฝนตก</span>")
         }
       } 
       else {
-        const number = randomNumber(1, 2)
+        const number = randomNumber(1, 3)
         if (number === 1) {
-          toggleRaining(false)
+          state.rule.isRaining = false
+          setRule(state.rule)
           addLog(state, "สภาพอากาศเปลี่ยน... <span class='purple'>ฝนหยุดตก</span>")
         }
       }
@@ -389,7 +408,7 @@ const DebugTool = (props) => {
           </div>
 
    
-          <button type="button" class="btn btn-primary btn-sm" onClick={() => toggleRaining(!isRaining)}>Rain</button>
+          <button type="button" class="btn btn-primary btn-sm" onClick={() => toggleRaining()}>Rain</button>
         </Fragment>
       )}
 
