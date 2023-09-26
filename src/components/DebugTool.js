@@ -125,7 +125,7 @@ const DebugTool = (props) => {
       setPlayers(state.players)
 
       if (!state.rule.isRaining) {
-        const number = randomNumber(1, 3)
+        const number = randomNumber(1, 9)
         if (number === 1) {
           state.rule.isRaining = true
           setRule(state.rule)
@@ -133,7 +133,7 @@ const DebugTool = (props) => {
         }
       } 
       else {
-        const number = randomNumber(1, 3)
+        const number = randomNumber(1, 2)
         if (number === 1) {
           state.rule.isRaining = false
           setRule(state.rule)
