@@ -171,13 +171,14 @@ export const masterEpicDeck = [
   new Card(4, "la_guillotine", "weapon", "melee"),
   new Card(2, "nailbat", "weapon", "melee"),
   new Card(4, "zantetsuken", "weapon", "melee"),
-  new Card(4, "daisho", "weapon", "melee"),
+  // new Card(4, "daisho", "weapon", "melee"),
   new Card(3, "golden_ak47", "weapon", "range"),
   new Card(5, "thompson", "weapon", "range"),
   new Card(3, "pink_m4", "weapon", "range"),
   new Card(2, "nico_special", "weapon", "range"),
   new Card(0, "rpg", "weapon", "range"),
 
+  new Card(0, "ah", "item"),
   new Card(0, "ah", "item"),
   new Card(0, "ah2", "item"),
 ]

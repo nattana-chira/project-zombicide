@@ -817,11 +817,11 @@ code {
   }
 }
 
-.main {
-  /* filter: brightness(100%); */
-}
-
 #canvas {
   position: absolute;
   z-index: -1;
+}
+
+.raining {
+  filter: brightness(75%);
 }

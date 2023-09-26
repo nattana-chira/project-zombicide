@@ -99,7 +99,7 @@ export default function PlayerBoard(props) {
                 <i class="fa fa-toggle-up stat-changer hoverable green" onClick={() => setDiceBonus(diceBonus+1)}></i>
                 <i class="fa fa-toggle-down stat-changer hoverable red" onClick={() => setDiceBonus(diceBonus-1)}></i>
               </span>
-            </div>	
+            </div>
             <hr />
 
             {/* PLAYER ACTION BUTTON */}

@@ -21,6 +21,7 @@ import { DEV_MODE } from './classes/_InitSetting';
 import missions from './classes/Mission';
 import Hero, { initHeroes, randomHero } from './classes/Hero';
 import $ from "jquery"
+import Rain from './components/Rain';
 
 function App() {
   const [rule, setRule] = useState(null)
@@ -34,6 +35,7 @@ function App() {
   const [selectedWeapon, selectWeapon] = useState(null)
   const [diceResult, setDiceResult] = useState([])
   const [diceBonus, setDiceBonus] = useState(0)
+  const [isRaining, toggleRaining] = useState(false)
 
   const queryParams = new URLSearchParams(window.location.search)
   const sessionId = queryParams.get("sessionId")
@@ -443,6 +445,11 @@ function App() {
     })
     setMission({ ...state.mission })
     PlayAudio.randomZombieSpawn()
+
+    if (zombieName === "chupacabra") {
+      toggleRaining(true)
+      addLog(state, "สภาพอากาศเปลี่ยน... <span class='purple'>ฝนตก</span>")
+    }
 
     addLog(state, `ซอมบี้ปรากฏ ${zombieName}`)
     delay(() => updateData(state, { docId: roomId }))
@@ -1011,6 +1018,8 @@ function App() {
     <div className="App" onMouseMove={handleMouseMove} onKeyDown={handleKeyDown} tabIndex="0">
       <button ref={modalTrigger} type="button" class="btn btn-sm btn-primary modalTrigger" data-bs-toggle="modal" data-bs-target="#confirmModal" ></button>
 
+      {isRaining && <Rain />}
+
      {/* ACTION MODAL */}
      <div class="modal" id="confirmModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -1074,7 +1083,7 @@ function App() {
           <div className='admin-board'>
             <DebugTool mainState={mainState} setRule={setRule} setPlayers={setPlayers} setDeck={setDeck} restartClicked={restartClicked} 
               spawnZombieClicked={spawnZombieClicked} drawSpawnCardClicked={drawSpawnCardClicked} setShowSpawner={setShowSpawner} showSpawner={showSpawner} 
-              addLog={addLog} spawnerPosition={spawnerPosition} setMission={setMission} me={me} />
+              addLog={addLog} spawnerPosition={spawnerPosition} setMission={setMission} me={me} toggleRaining={toggleRaining} isRaining={isRaining} />
             {/* <button type='button' className='btn btn-primary' onClick={() => toggleIsLoading(!isLoading)}>toggle loading</button> */}
           </div>
         </Draggable>
@@ -1138,7 +1147,7 @@ function App() {
         </div>
       </Draggable>
 
-      <div className='main'>
+      <div className={classNames("main", { raining: isRaining })}>
         <MapPlayer players={players} onPlayerControlled={onPlayerControlled} />
         {mapThings()}
         {mapZombies()}

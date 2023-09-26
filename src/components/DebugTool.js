@@ -1,4 +1,4 @@
-import { createArray, delay, randomIdOnlyNumber, sortRandom } from "../classes/Utils"
+import { createArray, delay, randomIdOnlyNumber, randomNumber, sortRandom } from "../classes/Utils"
 import { updateData, resetInit, addInit, EMOJI_DOC } from "../classes/ApiService"
 import Player from '../classes/Player'
 import PlayAudio from "../classes/PlayAudio"
@@ -8,7 +8,7 @@ import { abominations } from "../classes/Zombie"
 
 const DebugTool = (props) => {
   const { setRule, setPlayers, setDeck, mainState, restartClicked, spawnZombieClicked, drawSpawnCardClicked,
-    showSpawner, setShowSpawner, addLog, spawnerPosition, setMission, me } = props
+    showSpawner, setShowSpawner, addLog, spawnerPosition, setMission, me, toggleRaining, isRaining } = props
   const players = mainState.players
 
   const queryParams = new URLSearchParams(window.location.search)
@@ -98,6 +98,8 @@ const DebugTool = (props) => {
     setRule(state.rule)
     PlayAudio.click()
 
+    addLog(state, "clear spawn card")
+
     if (state.rule.zombieTurn) {
       state.rule = { ...state.rule, zombieTurn: false }
       state.players.push(state.players.shift())
@@ -105,9 +107,22 @@ const DebugTool = (props) => {
       setRule(state.rule)
       setPlayers(state.players)
 
+      if (!isRaining) {
+        const number = randomNumber(1, 10)
+        if (number === 1) {
+          toggleRaining(true)
+          addLog(state, "สภาพอากาศเปลี่ยน... <span class='purple'>ฝนตก</span>")
+        }
+      } 
+      else {
+        const number = randomNumber(1, 2)
+        if (number === 1) {
+          toggleRaining(false)
+          addLog(state, "สภาพอากาศเปลี่ยน... <span class='purple'>ฝนหยุดตก</span>")
+        }
+      }
     }
 
-    addLog(state, "clear spawn card")
     delay(() => updateData(state, { docId: roomId }))
   }
 
@@ -136,7 +151,8 @@ const DebugTool = (props) => {
 
   const randomAbominationClicked = () => {
     const random = sortRandom(abominations)
-    spawnZombieClicked(random[0])
+    const zombieName = random[0]
+    spawnZombieClicked(zombieName)
   }
 
   return (
@@ -371,6 +387,9 @@ const DebugTool = (props) => {
               )}
             </ul>
           </div>
+
+   
+          <button type="button" class="btn btn-primary btn-sm" onClick={() => toggleRaining(!isRaining)}>Rain</button>
         </Fragment>
       )}
 

@@ -38,6 +38,7 @@ export const masterSpawnDeck = [
   new SpawnCard(29), // Abomination
   new SpawnCard(29),
   new SpawnCard(29),
+  new SpawnCard(29),
   new SpawnCard(30),
   new SpawnCard(31),
   new SpawnCard(32),
