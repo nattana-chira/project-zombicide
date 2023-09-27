@@ -186,10 +186,10 @@ export const masterDeck = [
 ]
 
 export const masterEpicDeck = [
-  new Card(5, "911_special", "weapon", "range"),
+  new Card(4, "911_special", "weapon", "range"),
   new Card(3, "automatic_shotgun", "weapon", "range"),
   new Card(6, "jack_and_jill", "weapon", "range"),
-  new Card(4, "la_guillotine", "weapon", "melee"),
+  new Card(3, "la_guillotine", "weapon", "melee"),
   new Card(2, "nailbat", "weapon", "melee"),
   new Card(4, "zantetsuken", "weapon", "melee"),
   new Card(6, "betty", "weapon", "melee"),
