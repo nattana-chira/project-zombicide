@@ -23,7 +23,7 @@ export default function ActionModal({ modalClose, me, players, selectedCard, swa
                   <div class="green-text">Sniper</div>
                 )}
                 {selectedCard?.hasNightVisionSkill() && (
-                  <div class="green-text">Sniper</div>
+                  <div class="green-text">Night Vision</div>
                 )}
                 {selectedCard?.hasReloadSkill() && (
                   <div class="alert-text">Reload</div>
