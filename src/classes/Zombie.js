@@ -15,7 +15,10 @@ export const buildZombie = (name, { position = { x: 0, y: 0 } } ) => {
     case "patient_zero": return buildPatientZero({ position })
     case "chupacabra": return buildChupacabra({ position })
     case "abominarat": return buildAbominarat({ position })
-
+    case "black_dog": return buildBlackDog({ position })
+    case "magenta": return buildMagenta({ position })
+    case "gorgomination": return buildGorgomination({ position })
+    
     case "toxic_walker": return buildToxicWalker({ position })
     case "toxic_runner": return buildToxicRunner({ position })
     case "toxic_brute": return buildToxicBrute({ position })
@@ -37,7 +40,10 @@ export const abominations = [
   "hobomination",
   "patient_zero",
   "chupacabra",
-  "abominarat"
+  "abominarat",
+  "black_dog",
+  "magenta",
+  "gorgomination"
 ]
 
 export const getZombieTrans = (zombieName) => {
@@ -52,8 +58,31 @@ const masterTrans = {
   abominawild: { name: "Abominawild", desc: "หากฆ่า Abominawild ด้วย Molotov หรือ Flamethrower ซอมบี้ตัวอื่นในพื้นที่จะไม่ถูกฆ่าไปด้วย" },
   hobomination: { name: "Hobomination", desc: "Survivor ที่อยู่ในระยะ 1 หน่วยจาก Hobomination ไม่สามารถต่อสู้ได้" },
   patient_zero: { name: "Patient Zero", desc: "Patient Zero สามารถเคลื่อนที่ไปหา Survivor ที่อยู่ในระยะมองเห็นได้โดยไม่จำกัดระยะทาง" },
-  chupacabra: { name: "Chupacabra", desc: "Chupacabra ไม่สามารถถูกสังหารในที่มืดได้ เมื่อ Chupacabra ปรากฏมีโอกาศที่ฝนจะตก" },
+  chupacabra: { name: "Chupacabra", desc: "Chupacabra ไม่สามารถถูกสังหารในที่มืดได้ เมื่อ Chupacabra ปรากฏฝนจะตกทันที" },
   abominarat: { name: "Abominarat", desc: "Abominarat จะปรากฏข้างๆพื่นที่ที่เสียงดังที่สุด Abominarat สามารถเคลื่อนที่ได้ 2 ช่อง" },
+  black_dog: { name: "Black Dog", desc: "บาดแผลที่ Survivor ได้รับจากซอมบี้ตัวอื่น เพิ่มขึ้นเป็นเท่าตัว" },
+  magenta: { name: "The Magenta", desc: "Survivor ที่อยู่ในระยะการมองเห็นของ Magenta ต้องเสีย 1 Action เพิ่มเพื่อที่จะเคลื่อนที่ได้" },
+  gorgomination: { name: "Gorgomination", desc: "Gorgomination จะปรากฏในสิ่งปลูกสร้างในพื่นที่ที่เสียงดังที่สุด และ Gorgomination สามารถเดินทะลุกำแพงได้" },
+
+  walker: { name: "Walker", desc: "" },
+  Runner: { name: "Skinner Runner", desc: "มี 2 Action" },
+  Brute: { name: "Skinner Brute", desc: "พลังป้องกัน 2" },
+
+  skinner_walker: { name: "Skinner Walker", desc: "เมื่อตายจะกลายเป็น Crawler" },
+  skinner_runner: { name: "Skinner Runner", desc: "เมื่อตายจะกลายเป็น Crawler" },
+  skinner_brute: { name: "Skinner Brute", desc: "เมื่อตายจะกลายเป็น Crawler" },
+
+  berserker_walker: { name: "Berserker Walker", desc: "ไม่ได้รับความเสียหายจาก Ranged Weapon" },
+  berserker_runner: { name: "Berserker Runner", desc: "ไม่ได้รับความเสียหายจาก Ranged Weapon" },
+  berserker_brute: { name: "Berserker Brute", desc: "ไม่ได้รับความเสียหายจาก Ranged Weapon" },
+
+  toxic_walker: { name: "Toxic Walker", desc: "หากถูกฆ่าในระยะประชิด ผู้ที่ฆ่าจะได้รับบาดเจ็บ" },
+  toxic_runner: { name: "Toxic Runner", desc: "หากถูกฆ่าในระยะประชิด ผู้ที่ฆ่าจะได้รับบาดเจ็บ" },
+  toxic_brute: { name: "Toxic Brute", desc: "หากถูกฆ่าในระยะประชิด ผู้ที่ฆ่าจะได้รับบาดเจ็บ" },
+
+  dogz: { name: "Dogz", desc: "มี 3 Action" },
+  crowz: { name: "Crowz", desc: "เคลื่อนที่ได้ 3 ช่องโดยไม่สนสิ่งกีดขวาง" },
+
 }
 
 export const buildCrawler = ({ position = { x: 0, y: 0 } }) => {
@@ -301,4 +330,16 @@ export const buildChupacabra = ({ position = { x: 0, y: 0 } }) => {
 
 export const buildAbominarat = ({ position = { x: 0, y: 0 } }) => {
   return buildAbomination("abominarat", position)
+}
+
+export const buildBlackDog = ({ position = { x: 0, y: 0 } }) => {
+  return buildAbomination("black_dog", position)
+}
+
+export const buildMagenta = ({ position = { x: 0, y: 0 } }) => {
+  return buildAbomination("magenta", position)
+}
+
+export const buildGorgomination = ({ position = { x: 0, y: 0 } }) => {
+  return buildAbomination("gorgomination", position)
 }

@@ -33,15 +33,15 @@ const mission_m3 = {
     rotate: "180deg",
     spawnPoints: [],
     ...map7r(180),
-  doors: map7r(180).doors
-    .filter((door, i) => i !== 1),
+    doors: map7r(180).doors
+      .filter((door, i) => i !== 1),
 
-  epicWeapons: [...map7r(180).epicWeapons, {
-    id: randomIdOnlyNumber(),
-    visible: true,
-    rotate: `180deg`,
-    position: { left: "490px", top: "580px" }
-  }]
+    epicWeapons: [...map7r(180).epicWeapons, {
+      id: randomIdOnlyNumber(),
+      visible: true,
+      rotate: `180deg`,
+      position: { left: "490px", top: "580px" }
+    }]
   },
   block_5: {
     tile: "3r",

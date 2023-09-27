@@ -3,10 +3,12 @@ import { updateData, resetInit, addInit, EMOJI_DOC } from "../classes/ApiService
 import Player from '../classes/Player'
 import PlayAudio from "../classes/PlayAudio"
 import { Fragment } from "react"
-import { mapMasterDeck } from "../classes/Card"
-import { abominations } from "../classes/Zombie"
+import { mapMasterDeck, specialDeck } from "../classes/Card"
+import { abominations, getZombieTrans } from "../classes/Zombie"
 
 const DebugTool = (props) => {
+  console.log("specialDeck ", specialDeck)
+
   const { setRule, setPlayers, setDeck, mainState, restartClicked, spawnZombieClicked, drawSpawnCardClicked,
     showSpawner, setShowSpawner, addLog, spawnerPosition, setMission, me } = props
   const players = mainState.players
@@ -60,6 +62,21 @@ const DebugTool = (props) => {
     delay(() => updateData(state, { docId: roomId }))
   }
 
+  const endGameClicked = (endGameTxt) => {
+    const state = { rule: mainState.rule, log: mainState.log } 
+    state.rule.endGame = endGameTxt
+
+    if (endGameTxt === "win") {
+      addLog(state, "<span class'green'>Mission Completed</span> !!!")
+    }
+    else {
+      addLog(state, "<span class'green'>Mission Failed</span> !!!")
+    }
+
+    delay(() => updateData(state, { docId: roomId }))
+    
+  }
+
   const spawnThingClicked = (name, deg = 0) => {
     const state = { mission: mainState.mission, log: mainState.log }
 
@@ -101,7 +118,7 @@ const DebugTool = (props) => {
     })
     setPlayers(state.players)
 
-    state.deck = state.deck.filter(cardId => cardId !== card.id)
+    state.deck = sortRandom(state.deck.filter(cardId => cardId !== card.id))
     setDeck(state.deck)
 
     addLog(state, "take card" + card.name)
@@ -293,12 +310,9 @@ const DebugTool = (props) => {
               </button>
               <ul class="dropdown-menu">
               <li><div class="dropdown-item" onClick={() => randomAbominationClicked()}>Random</div></li>
-                <li><div class="dropdown-item" onClick={() => spawnZombieClicked("abominacop")}>Abominacop</div></li>
-                <li><div class="dropdown-item" onClick={() => spawnZombieClicked("abominawild")}>Abominawild</div></li>
-                <li><div class="dropdown-item" onClick={() => spawnZombieClicked("hobomination")}>Hobomination</div></li>
-                <li><div class="dropdown-item" onClick={() => spawnZombieClicked("patient_zero")}>Patient Zero</div></li>
-                <li><div class="dropdown-item" onClick={() => spawnZombieClicked("chupacabra")}>Chupacabra</div></li>
-                <li><div class="dropdown-item" onClick={() => spawnZombieClicked("abominarat")}>Abominarat</div></li>
+                {abominations.map(_abo => (
+                  <li><div class="dropdown-item" onClick={() => spawnZombieClicked(_abo)}>{getZombieTrans(_abo).name}</div></li>
+                ))}
               </ul>
             </div>
 
@@ -370,6 +384,8 @@ const DebugTool = (props) => {
               ADMIN
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnDev4">
+              <li><div class="dropdown-item green" onClick={() => endGameClicked("win")}>END GAME - WIN</div></li>
+              <li><div class="dropdown-item green" onClick={() => endGameClicked("lose")}>END GAME - LOSE</div></li>
               <li><div class="dropdown-item green" onClick={() => restartClicked()}>START MATCH</div></li>
               <li><div class="dropdown-item" onClick={doRestartMatch}>RESET DATA {roomId}</div></li>
               <li><div class="dropdown-item" onClick={addInit}>ADD NEW DATA</div></li>
@@ -401,12 +417,14 @@ const DebugTool = (props) => {
               ITEM
             </button>
             <ul class="dropdown-menu long-dropdown-menu" aria-labelledby="btnDev2">
-              {mainState.deck.map(mapMasterDeck).filter(card => card.type === "weapon").map(card =>
+              {specialDeck.map(card =>
+                <li><div class="dropdown-item" onClick={() => getItemClicked(card)}>*** {card.name}</div></li>
+              )}
+              {mainState.deck.map(mapMasterDeck).map(card =>
                 <li><div class="dropdown-item" onClick={() => getItemClicked(card)}>{card.name}</div></li>
               )}
             </ul>
           </div>
-
    
           <button type="button" class="btn btn-primary btn-sm" onClick={() => toggleRaining()}>Rain</button>
         </Fragment>

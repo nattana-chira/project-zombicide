@@ -99,6 +99,9 @@ code {
   color: white;
   font-weight: bold;
   background-color: black;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 1px;
 }
 
 .float-right {
@@ -159,6 +162,27 @@ code {
   top: 40px;
   right: 20px;
   z-index: 100;
+}
+
+.player-endgame {
+  width: 1100px;
+  margin-bottom: 10px;
+  display: flex;
+
+  .player-wrapper {
+    position: relative;
+    margin-bottom: 5px;
+    margin-right: 20px;
+  }
+  .player-avatar {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+.endgame-title {
+  font-size: 54px;
+  font-weight: bold;
 }
 
 .player-avatar-container {
@@ -672,19 +696,29 @@ code {
   height: 120px;
 }
 
-.abominacop, .abominawild, .hobomination, .patient_zero {
+.abominacop, .abominawild, .hobomination, .patient_zero, .magenta {
   width: 200px;
   height: 250px;
 }
 
+.gorgomination {
+  width: 240px;
+  height: 240px;
+}
+
 .abominarat {
-  width: 250px;
-  height: 230px;
+  width: 220px;
+  height: 200px;
+}
+
+.black_dog {
+  width: 180px;
+  height: 160px;
 }
 
 .chupacabra {
-  width: 250px;
-  height: 170px;
+  width: 200px;
+  height: 160px;
 }
 
 .abomination {

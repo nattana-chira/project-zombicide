@@ -6,6 +6,8 @@ import OpenBox from '../audio/OpenBox.ogg'
 import GunReload from '../audio/GunReload.mp3'
 import Move from '../audio/Move01.ogg'
 import Heartbeat from '../audio/HeartBeat.mp3'
+import Defeat from '../audio/Defeat.mp3'
+import Victory from '../audio/Victory.mp3'
 
 import Zombie1 from '../audio/zombie1.mp3'
 import Zombie2 from '../audio/zombie2.mp3'
@@ -71,6 +73,14 @@ export default class PlayAudio {
 
   static heartbeat = () => {
     PlayAudio.play(heartbeat)
+  }
+
+  static defeat = () => {
+    PlayAudio.play(defeat)
+  }
+
+  static victory = () => {
+    PlayAudio.play(victory)
   }
 
   static search = () => {
@@ -205,6 +215,8 @@ const openBox = PlayAudio.buildSound(OpenBox)
 const gunReload = PlayAudio.buildSound(GunReload)
 const move = PlayAudio.buildSound(Move)
 const heartbeat = PlayAudio.buildSound(Heartbeat)
+const defeat = PlayAudio.buildSound(Defeat)
+const victory = PlayAudio.buildSound(Victory)
 
 const zombieDead1 = PlayAudio.buildSound(Zombie3)
 const zombieDead2 = PlayAudio.buildSound(Zombie8)

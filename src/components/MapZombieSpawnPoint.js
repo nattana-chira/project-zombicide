@@ -5,9 +5,9 @@ export default function MapZombieSpawnPoint({ mission, blockName, onClick }) {
   if (!block) return null
 
   return block.spawnPoints.map(spawnPoint => 
-    <img 
+    <img
       id={spawnPoint.id}
-      src="img/spawn_point.png" 
+      src={ spawnPoint.color ? `img/spawn_point_${spawnPoint.color}.png` : "img/spawn_point.png" }
       className={classNames("spawn-point hoverable", { ["rotate-" + spawnPoint.rotate]: true })} 
       style={spawnPoint.position} 
       alt='spawn-point' 

@@ -7,7 +7,7 @@ import ItemCard from './ItemCard';
 
 export default function PlayerBoard(props) {
   const { rollDiceClicked, players, playerStatChanged, showDice, searchItemClicked, showDiceClicked, cardClicked, 
-    endTurnClicked, selectWeapon, heroMarkerToggled, me, rule, diceBonus, setDiceBonus } = props  
+    endTurnClicked, selectWeapon, heroMarkerToggled, me, rule, diceBonus, setDiceBonus, endGame, scoreBoardClicked } = props  
 
   const isMyTurn = me && me.sessionId === rule?.turnSessionId
 
@@ -104,16 +104,22 @@ export default function PlayerBoard(props) {
 
             {/* PLAYER ACTION BUTTON */}
             <button type="button" class="btn btn-success btn-sm" onClick={() => searchItemClicked()}>ค้นหา</button>
-            <div class="btn-group" role="group">
-              <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">ใช้อาวุธ</button>
-              <ul class="dropdown-menu">
-                {showDice === 0 
-                  ? (renderDiceOption()) 
-                  : <li><div class="dropdown-item" onClick={() => { showDiceClicked(0); selectWeapon(null) }}>เก็บอาวุธ</div></li>}
-              </ul>
-            </div>
+
+            {showDice === 0 
+              ? (
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">ใช้อาวุธ</button>
+                <ul class="dropdown-menu">
+                  {renderDiceOption()}
+                </ul>
+              </div>
+            ) : <button type="button" class="btn btn-primary btn-sm" onClick={() => { showDiceClicked(0); selectWeapon(null) }}>เก็บอาวุธ</button>}
+           
             <button type="button" id="roll-button" class="btn btn-primary btn-sm">ทอยลูกเต๋า</button>
 
+              {endGame && (
+                <button type="button" class="btn btn-primary btn-sm" onClick={() => scoreBoardClicked()}>ตารางคะแนน</button>
+              )}
             {/* <div class="btn-group" role="group">
               <button type="button" class="btn btn-primary btn-sm">+/- ลูกเต๋า</button>
               <ul class="dropdown-menu">
@@ -166,7 +172,7 @@ export default function PlayerBoard(props) {
 
             <br />
             <span class="danger-code">CODE {renderDangerCode()}</span> <br />
-            <span class="danger-code">[<span class="blue">0</span> <span class="lightyellow">7</span> <span class="orange">19</span> <span class="red">43</span>]</span>
+            <span class="danger-code">LEVEL [<span class="blue">0</span> <span class="lightyellow">7</span> <span class="orange">19</span> <span class="red">43</span>]</span>
           </div>
         </div>
       </div>

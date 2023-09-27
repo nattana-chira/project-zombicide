@@ -22,6 +22,11 @@ import missions from './classes/Mission';
 import Hero, { initHeroes, randomHero } from './classes/Hero';
 import $ from "jquery"
 import Rain from './components/Rain';
+import EndgameModal from './components/EndgameModal';
+import ActionModal from './components/ActionModal';
+import PlayerList from './components/PlayerList';
+import NewPlayerBoard from './components/NewPlayerBoard';
+import MapThing from './components/MapThing';
 
 function App() {
   const [rule, setRule] = useState(null)
@@ -46,9 +51,6 @@ function App() {
   const isMyTurn = me && me.sessionId === rule?.turnSessionId
   const notLoggedIn = !sessionId || !me
   const heroForPick = rule?.ramdomToPickHeroes.find(heroForPick => heroForPick.sessionId === me?.sessionId) || []
-  const isCardOwner = (card) => {
-    return me.equipItemIds.includes(card.id) || me.backpackItemIds.includes(card.id)
-  }
 
   const [spawnerPosition, setSpawnerPosition] = useState ({ x: 0, y: 0 })
   const [showDice, toggleShowDice] = useState(0)
@@ -57,6 +59,7 @@ function App() {
   const [lastAudioLog, setLastAudioLog] = useState(null)
 
   const modalTrigger = useRef()
+  const modalTrigger2 = useRef()
   const modalClose = useRef()
 
   const [mousePos, setMousePos] = useState({});
@@ -66,6 +69,18 @@ function App() {
       PlayAudio.gunReload()
     }
   }, [isMyTurn])
+
+
+  useEffect(() => {
+    if (rule?.endGame) {
+      modalTrigger2.current.click()
+
+      if (rule.endGame === "win")
+        PlayAudio.victory()
+      else 
+        PlayAudio.defeat()
+    }
+  }, [rule?.endGame])
 
   useEffect(() => {
     let lastLog = log[log.length - 1]
@@ -214,6 +229,17 @@ function App() {
     return state.players
   }
 
+  const addPlayerLog = (state, type, id) => {
+    state.players = state.players.map(_player => {
+      if (_player.sessionId === me.sessionId) {
+        _player.logs = [..._player.logs, { type, id }]
+      }
+      return _player
+    })
+    setPlayers(state.players)
+    return state.players
+  }
+
   const playSoundByAction = (action) => {
     if (action.includes("fire_axe")) PlayAudio.bash()
     else if (action.includes("crowbar")) PlayAudio.bash()
@@ -240,7 +266,9 @@ function App() {
     // else if (action.includes("rpg")) PlayAudio.bow()
     else if (action.includes("evil_twins")) PlayAudio.gunPistol()
     else if (action.includes("assault_rifle")) PlayAudio.gunM42()
+    else if (action.includes("m16a4_rifle")) PlayAudio.gunM42()
     else if (action.includes("pink_m4")) PlayAudio.gunM42()
+    else if (action.includes("sniper_rifle")) PlayAudio.gun3()
     else if (action.includes("rifle")) PlayAudio.gun3()
     else if (action.includes("winchester")) PlayAudio.gun3()
     else if (action.includes("sub_mg")) PlayAudio.gunSmg()
@@ -253,6 +281,7 @@ function App() {
     else if (action.includes("golden_ak47")) PlayAudio.gunAk47()
     else if (action.includes("ak47")) PlayAudio.gunAk47()
     else if (action.includes("pistol")) PlayAudio.gunPistol()
+    else if (action.includes("glock")) PlayAudio.gunPistol()
     else if (action.includes("desert_eagle")) PlayAudio.gunDesertEagle()
     else if (action.includes("automatic_shotgun")) PlayAudio.gunAutoShotGun()
     else if (action.includes("jack_and_jill")) PlayAudio.gunAutoShotGun()
@@ -448,7 +477,7 @@ function App() {
     if (zombieName === "chupacabra") {
       state.rule.isRaining = true
       setRule(state.rule)
-      addLog(state, "สภาพอากาศเปลี่ยน... <span class='purple'>ฝนตก</span>")
+      addLog(state, "chupacabra ทำให้สภาพอากาศเปลี่ยน... <span class='purple'>ฝนตก</span>")
     }
 
     addLog(state, `ซอมบี้ปรากฏ ${zombieName}`)
@@ -480,8 +509,11 @@ function App() {
       return player
     })
     setPlayers(state.players)
-    setRule({ ...state.rule, turnSessionId: state.players[0].sessionId })
-    setShowSpawner(true)
+
+    state.rule = { ...state.rule, turnSessionId: state.players[0].sessionId }
+    setRule(state.rule)
+    console.log("state.players[0].sessionId  ", state.players[0].sessionId)
+    // setShowSpawner(true)
 
     delay(() => updateData(state, { docId: roomId }))
   }
@@ -495,6 +527,8 @@ function App() {
     state.deck = state.deck.slice(number)
     setDeck(state.deck)
 
+    const card = drawnCardIds.map(mapMasterDeck)[0]
+    addPlayerLog(state, "item", card.id)
     addCardToPlayer(state, drawnCardIds, me)
     decreaseAction(state)
 
@@ -635,7 +669,11 @@ function App() {
       PlayAudio.click()
     }
 
-    addLog(state, `ใช้ ${selectedWeapon.name} ` + result.join(", "))
+    let reloadTxt = selectedWeapon?.hasReloadSkill()
+      ? "<span class='red'> Reload</span>"
+      : ""
+
+    addLog(state, `ใช้ ${selectedWeapon.name} ` + result.join(", ") + reloadTxt)
     delay(() => updateData(state, { docId: roomId }))
   }
 
@@ -650,6 +688,7 @@ function App() {
       setMission(state.mission)
       
       gainExp(state, zombie.exp)
+      addPlayerLog(state, "zombie", zombie.name)
       PlayAudio.randomZombieDead()
 
       addLog(state,`ได้ฆ่า ${zombie.name} ได้รับ exp+${zombie.exp}`)
@@ -853,6 +892,16 @@ function App() {
 
   const mapZombies = () => {
     const backgroundStyle = (zombie) => ({ backgroundImage: `url('img/${zombie.name}.png')` })
+    const zombieDesc = (zombie) => (
+      <li>
+        <div class="dropdown-item skin-dropdown-menu">
+          <div className='bold'>
+            {getZombieTrans(zombie.name).name}
+          </div>
+          {getZombieTrans(zombie.name).desc}
+        </div>
+      </li>
+    )
 
     return mission.zombies.map(zombie => (
       <Draggable
@@ -866,63 +915,20 @@ function App() {
               <ul class="dropdown-menu skin-dropdown-menu" aria-labelledby={`zombie-${zombie.id}`}>
                 <li><div class="dropdown-item" onClick={() => killZombieClicked(zombie)}>ฆ่า [{zombie.name}]</div></li>
                 <li><div class="dropdown-item red" onClick={() => trashZombieClicked(zombie)}>ทิ้ง [{zombie.name}]</div></li>
-                {zombie.type === "abomination" && (
-                  <li>
-                    <div class="dropdown-item skin-dropdown-menu">
-                      <div className='bold'>
-                        {getZombieTrans(zombie.name).name}
-                      </div>
-                      {getZombieTrans(zombie.name).desc}
-                    </div>
-                  </li>
-                )}
+                {zombieDesc(zombie)}
               </ul>
           </div>
-         ) : <div className={`zombie breathing ${zombie.name}`} style={backgroundStyle(zombie)}></div>}
+         ) : 
+          <div>
+            <div className={`zombie breathing blink_me_sec ${zombie.name}`} style={backgroundStyle(zombie)} data-bs-toggle="dropdown" aria-expanded="false"></div>
+            <ul class="dropdown-menu skin-dropdown-menu" aria-labelledby={`zombie-${zombie.id}`}>
+              {zombieDesc(zombie)}
+            </ul>
+          </div>
+         }
         </div>
       </Draggable>
     ))
-  }
-
-  const mapThings = () => {
-    return mission.things.map(thing => 
-      <Fragment>
-        {thing.name ==="door" && 
-          <img src={thing.isOpen ? "img/opened_door.png"  : "img/closed_door.png" }
-            className={classNames("door hoverable", { ["rotate-" + thing.rotate]: true })} 
-            style={thing.position} 
-            alt='door' 
-            onDoubleClick={() => onClickThings(thing)}
-          />
-        }
-        {thing.name ==="openedDoor" && 
-          <img src={"img/opened_door.png" }
-            className={classNames("door hoverable", { ["rotate-" + thing.rotate]: true })} 
-            style={thing.position} 
-            alt='door' 
-            onDoubleClick={() => onClickThings(thing)}
-          />
-        }
-        {thing.name ==="exit" && 
-          <img src="img/exit.png" 
-            className={classNames("spawn-point hoverable", { ["rotate-" + thing.rotate]: true })} 
-            style={thing.position} 
-            alt='spawn-point' 
-            onDoubleClick={() => onClickThings(thing)}
-          />
-        }
-        {thing.name ==="spawnPoint" && 
-          <img 
-            id={thing.id}
-            src="img/spawn_point.png" 
-            className={classNames("spawn-point hoverable", { ["rotate-" + thing.rotate]: true })} 
-            style={thing.position} 
-            alt='spawn-point' 
-            onDoubleClick={() => onClickThings(thing)}
-          />
-        }
-      </Fragment>
-    )
   }
 
   const mapExit = () => {
@@ -932,71 +938,6 @@ function App() {
         style={exit.position} 
         alt='spawn-point' 
       />
-    )
-  }
-
-  const renderPlayers = () => {
-    return (
-      <div className="player-avatar-container">
-        {rule?.zombieTurn 
-          ? (
-            <div className="player-avatar zombie-avatar breathing">
-              <img className="zombie-img" src="img/zombie_avatar.png" />
-            </div>
-          )
-          : players.map(player => (
-          <div className="player-avatar hoverable tooltip1">
-            <img className="img" src="img/player_avatar.png" />
-            <div className={classNames({ "green-text": rule.turnSessionId === player.sessionId })}>{player.name}</div>
-            
-            <span class="tooltiptext">
-              <div className='view-player'>
-                <div className='inner-wrapper'>
-                  <div className='player-detail'>
-                    {player.hero && (
-                      <div class="hero-card-sm" style={{ background: `url("img/hero_${player.hero.name}.png")`, backgroundSize: "cover" }}>
-                        <div class={classNames("marker marker-skill1", { "marker-visible": player.skill1 })}></div>
-                        <div class={classNames("marker marker-skill2", { "marker-visible": player.skill2 })}></div>
-                        <div class={classNames("marker marker-skill31", { "marker-visible": player.skill31 })}></div>
-                        <div class={classNames("marker marker-skill32", { "marker-visible": player.skill32 })}></div>
-                        <div class={classNames("marker marker-skill41", { "marker-visible": player.skill41 })}></div>
-                        <div class={classNames("marker marker-skill42", { "marker-visible": player.skill42 })}></div>
-                        <div class={classNames("marker marker-skill43", { "marker-visible": player.skill43 })}></div>
-                        <div class={classNames("marker marker-hp3", { "marker-hp-visible": player.hp3 })}></div>
-                        <div class={classNames("marker marker-hp2", { "marker-hp-visible": player.hp2 })}></div>
-                        <div class={classNames("marker marker-hp1", { "marker-hp-visible": player.hp1 })}></div>
-                        <div class={classNames("marker marker-hp0", { "marker-hp-visible": player.hp0 })}></div>
-                      </div>
-                    )}
-                  </div>
-                  <div class="inventory">
-                    <div className={classNames("bold", { "red": player.hp1, "purple": player.hp0 })}>
-                      {player.name} <br />({player.sessionId})
-                    </div>
-                    <div className={classNames({ "blink_me alert-text": player.action < 1 })}>
-                      AC: {player.action}/{player.maxAction}
-                    </div>
-                    <div class="level">
-                    LEVEL: {player.level}
-                    </div>
-                    <div class="equip">
-                      {player.equipItemIds.map(mapMasterDeck).map(card => (
-                        <ItemCard card={card} classes="blink_me_sec item-card-sm" onClick={() => cardClicked(card)} />
-                      ))}
-                    </div>
-        
-                    <div class="backpack">
-                      {player.backpackItemIds.map(mapMasterDeck).map(card => (
-                        <ItemCard card={card} classes="blink_me_sec item-card-sm" onClick={() => cardClicked(card)} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </span>
-          </div>
-        ))}
-      </div>
     )
   }
 
@@ -1017,66 +958,14 @@ function App() {
   return (
     <div className="App" onMouseMove={handleMouseMove} onKeyDown={handleKeyDown} tabIndex="0">
       <button ref={modalTrigger} type="button" class="btn btn-sm btn-primary modalTrigger" data-bs-toggle="modal" data-bs-target="#confirmModal" ></button>
+      <button ref={modalTrigger2} type="button" class="btn btn-sm btn-primary modalTrigger" data-bs-toggle="modal" data-bs-target="#endgameModal" ></button>
 
       {rule.isRaining && <Rain />}
 
-     {/* ACTION MODAL */}
-     <div class="modal" id="confirmModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <button ref={modalClose} type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            <div class="modal-body">
-              {selectedCard && <ItemCard card={selectedCard} classes="item-card-lg" />}
-            </div>
-            <div class="modal-footer">
-              <div>
-                <h5 class="footer-text" id="exampleModalLabel">
-                  <div><strong>{selectedCard?.showName()}</strong> </div>
-                  <div dangerouslySetInnerHTML={{ __html: selectedCard?.showDesc() }}></div>
-                  {selectedCard?.hasSniperSkill() && (
-                    <div class="green-text">Sniper</div>
-                  )}
-                  {selectedCard?.hasReloadSkill() && (
-                    <div class="alert-text">Reload</div>
-                  )}
-                </h5>
-                <hr />
-                <div class="d-grid gap-2 footer-button">
-                  {selectedCard && isCardOwner(selectedCard) && (
-                    <Fragment>
-                      <button type="button" class="btn btn-primary" onClick={() => swapCardClicked(selectedCard)}>
-                        สลับช่อง
-                      </button>
-
-                      <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                          มอบให้ผู้เล่นอื่น
-                        </button>
-                        <ul class="dropdown-menu">
-                          {players.filter(_player => _player.sessionId !== me.sessionId).map(player => (
-                            <li><div class="dropdown-item" onClick={() => giveCardClicked(selectedCard, player)}>{player.name}</div></li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                          ทิ้งการ์ด
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li><div class="dropdown-item" onClick={() => addCardToTrashClicked(selectedCard)}>ยืนยัน</div></li>
-                        </ul>
-                      </div>
-                    </Fragment>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {renderPlayers()}
+      <ActionModal modalClose={modalClose} me={me} players={players} selectedCard={selectedCard} swapCardClicked={swapCardClicked} 
+        giveCardClicked={giveCardClicked} addCardToTrashClicked={addCardToTrashClicked} />
+      <EndgameModal endGame={rule.endGame} players={players} />
+      <PlayerList rule={rule} players={players} cardClicked={cardClicked} />
 
       {isAdmin && (
         <Draggable>
@@ -1101,43 +990,15 @@ function App() {
       )}
 
       {(notLoggedIn || !me.hero) && (
-        <Draggable>
-          <div className='player-board new-player-board'>
-            <div className='inner-wrapper'>
-              {notLoggedIn && 
-                <Fragment>
-                  <input type="text" class="form-control your-name-input blink_me_few_sec" placeholder='YOUR NAME...'
-                    value={yourName}
-                    onChange={onYourNameInputChange}
-                  />
-                  <button type="button" class="btn btn-primary btn-md btn-block" onClick={joinGameClicked}>
-                    เข้าร่วมเกมส์
-                  </button>
-                </Fragment>
-              }
-              {heroForPick.heroes?.map(hero => (
-                <div>
-                  <div className="warlord-pick-inner-wrapper">
-                    <div class="hero-img">
-                      <img class="img" src={`img/hero_${hero.name}.png`} />
-                    </div>
-                    <div class="pick-hero-btn-wrapper">
-                      <button onClick={() => pickHeroClicked(hero)} type="button" class="btn btn-primary btn-lg btn-block pick-hero-btn">
-                        เลือก
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Draggable>
+        <NewPlayerBoard notLoggedIn={notLoggedIn} heroForPick={heroForPick} yourName={yourName} onYourNameInputChange={onYourNameInputChange} 
+          joinGameClicked={joinGameClicked} pickHeroClicked={pickHeroClicked} />
       )}
 
       {me && me.hero && (
         <PlayerBoard rollDiceClicked={rollDiceClicked} playerStatChanged={playerStatChanged} players={players} searchItemClicked={searchItemClicked} 
           showDiceClicked={showDiceClicked} cardClicked={cardClicked} endTurnClicked={endTurnClicked} me={me} rule={rule} showDice={showDice} 
-          heroMarkerToggled={heroMarkerToggled} selectWeapon={selectWeapon} diceBonus={diceBonus} setDiceBonus={setDiceBonus}
+          heroMarkerToggled={heroMarkerToggled} selectWeapon={selectWeapon} diceBonus={diceBonus} setDiceBonus={setDiceBonus} endGame={rule.endGame}
+          scoreBoardClicked={() => modalTrigger2.current.click()}
         />
       )}
 
@@ -1149,7 +1010,9 @@ function App() {
 
       <div className={classNames("main", { raining: rule.isRaining })}>
         <MapPlayer players={players} onPlayerControlled={onPlayerControlled} />
-        {mapThings()}
+
+        <MapThing mission={mission} onClickThings={onClickThings} />
+
         {mapZombies()}
         {mapExit()}
 

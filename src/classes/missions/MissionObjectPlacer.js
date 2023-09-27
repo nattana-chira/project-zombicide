@@ -219,6 +219,38 @@ export const map4v = (degree = 0) => ({
   ]
 })
 
+export const map4r = (degree = 0) => ({
+  objectives: [
+    {
+      id: randomIdOnlyNumber(),
+      visible: true,
+      rotate: `${degree}deg`,
+      position: { left: "200px", top: "100px" }
+    }
+  ],
+  epicWeapons: [
+    {
+      id: randomIdOnlyNumber(),
+      visible: true,
+      rotate: `${degree}deg`,
+      position: { left: "240px", top: "420px" }
+    }
+  ],
+  doors: [
+    {
+      id: randomIdOnlyNumber(),
+      isOpen: false,
+      rotate: doorDegree(270, degree),
+      position: { left: doorPositon(270, degree, 330), top: "295px" }
+    },
+    {
+      id: randomIdOnlyNumber(),
+      isOpen: false,
+      rotate: doorDegree(90, degree),
+      position: { left: doorPositon(270, degree, 180), top: "210px" }
+    },
+  ]
+})
 
 
 export const map5r = (degree = 0) => ({

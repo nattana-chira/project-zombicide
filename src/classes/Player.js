@@ -8,6 +8,7 @@ export default class Player {
   level = 0
   equipItemIds = []
   backpackItemIds = []
+  logs = []
   position = { x: 0, y: 0 }
   hero = null
 
@@ -35,8 +36,8 @@ export default class Player {
 
 const _initPlayers = [
   new Player("Drink", "254686"),
-  // new Player("Somchai", "874957"),
-  // new Player("C0", "632001")
+  new Player("Somchai", "874957"),
+  new Player("C0", "632001")
 ]
 
 export const initPlayers = DEV_MODE ? _initPlayers : []

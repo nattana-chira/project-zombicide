@@ -21,8 +21,13 @@ export default class Card {
     return masterTrans[this.name]?.desc || this.desc
   }
 
+  hasNightVisionSkill() {
+    const weapons = ["m16a4_rifle", "night_vision"]
+    return weapons.includes(this.name)
+  }
+
   hasSniperSkill() {
-    const weapons = ["nico_special"]
+    const weapons = ["nico_special", "scope", "sniper_rifle"]
     return weapons.includes(this.name)
   }
 
@@ -68,6 +73,14 @@ export const starterWeapons = [
   "rifle",
 ]
 
+export const specialDeck = [
+  new Card(0, "molotov", "weapon", "range"),
+  new Card(0, "molotov", "weapon", "range"),
+  new Card(0, "molotov", "weapon", "range"),
+  new Card(1, "sniper_rifle", "weapon", "range"),
+  new Card(2, "nailbat", "weapon", "melee"),
+]
+
 export const masterDeck = [
   new Card(0, "water", "item"),
   new Card(0, "water", "item"),
@@ -86,6 +99,7 @@ export const masterDeck = [
   new Card(0, "plenty_of_ammo_45", "item"),
   new Card(0, "plenty_of_ammo_shell", "item"),
   new Card(0, "plenty_of_ammo_shell", "item"),
+  new Card(0, "hollow_round", "item"),
   new Card(0, "spare_change", "item"),
   new Card(0, "scope", "item"),
   new Card(0, "gasoline", "item"),
@@ -93,6 +107,10 @@ export const masterDeck = [
   new Card(0, "glass_bottle", "item"),
   new Card(0, "glass_bottle", "item"),
   new Card(0, "riot_shield", "item"),
+  new Card(0, "snack_cake", "item"),
+  new Card(0, "night_vision", "item"),
+  new Card(0, "gask_mask", "item"),
+  new Card(0, "nail", "item"),
 
   new Card(1, "fire_axe", "weapon", "melee"),
   new Card(1, "fire_axe", "weapon", "melee"),
@@ -120,6 +138,7 @@ export const masterDeck = [
   new Card(1, "knife", "weapon", "melee"),
   new Card(1, "knife", "weapon", "melee"),
   new Card(2, "saber", "weapon", "melee"),
+  new Card(2, "saber", "weapon", "melee"),
   new Card(2, "sword", "weapon", "melee"),
   new Card(1, "knuckles", "weapon", "melee"),
   new Card(1, "knuckles", "weapon", "melee"),
@@ -130,6 +149,7 @@ export const masterDeck = [
   new Card(1, "pistol", "weapon", "range"),
   new Card(1, "rifle", "weapon", "range"),
   new Card(1, "rifle", "weapon", "range"),
+  new Card(1, "sniper_rifle", "weapon", "range"),
   new Card(2, "sawed_off", "weapon", "range"),
   new Card(2, "sawed_off", "weapon", "range"),
   new Card(2, "shotgun", "weapon", "range"),
@@ -142,7 +162,6 @@ export const masterDeck = [
   new Card(2, "assault_rifle", "weapon", "range"),
   new Card(1, "gunblade", "weapon", "range"),
   new Card(1, "gunblade", "weapon", "range"),
-  new Card(2, "ak47", "weapon", "range"),
   new Card(2, "ak47", "weapon", "range"),
   new Card(1, "bow", "weapon", "range"),
   new Card(1, "bow", "weapon", "range"),
@@ -158,6 +177,8 @@ export const masterDeck = [
   new Card(3, "handcannon", "weapon", "range"),
   new Card(2, "winchester", "weapon", "range"),
   new Card(0, "flamethrower", "weapon", "range"),
+  new Card(1, "glock", "weapon", "range"),
+  new Card(1, "m16a4_rifle", "weapon", "range"),
 
   new Card(0, "ah", "item"),
   new Card(0, "ah", "item"),
@@ -171,7 +192,7 @@ export const masterEpicDeck = [
   new Card(4, "la_guillotine", "weapon", "melee"),
   new Card(2, "nailbat", "weapon", "melee"),
   new Card(4, "zantetsuken", "weapon", "melee"),
-  // new Card(4, "daisho", "weapon", "melee"),
+  new Card(6, "betty", "weapon", "melee"),
   new Card(3, "golden_ak47", "weapon", "range"),
   new Card(5, "thompson", "weapon", "range"),
   new Card(3, "pink_m4", "weapon", "range"),
@@ -181,10 +202,11 @@ export const masterEpicDeck = [
   new Card(0, "ah", "item"),
   new Card(0, "ah", "item"),
   new Card(0, "ah2", "item"),
+  new Card(0, "ah2", "item"),
 ]
 
 export const mapMasterDeck = (cardId) => 
-  masterDeck.find(card => card.id === cardId) || masterEpicDeck.find(card => card.id === cardId)
+  masterDeck.find(card => card.id === cardId) || masterEpicDeck.find(card => card.id === cardId) || specialDeck.find(card => card.id === cardId)
 
 export const shuffleDeck = (deck) => {
   const _deck = [...deck].sort(() => Math.random() - 0.5)

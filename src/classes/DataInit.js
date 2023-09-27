@@ -60,6 +60,7 @@ export const initState = {
     displaySpawnDeck: [],
     epicDeck: randomEpicDeck,
     zombieTurn: false,
+    endGame: "",
     isRaining: false,
     ramdomToPickHeroes: ramdomToPickHeroes
   },
