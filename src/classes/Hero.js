@@ -1,3 +1,5 @@
+import { sortRandom } from "./Utils"
+
 export default class Hero {
   name = null
   maxHp = 0
@@ -8,7 +10,8 @@ export default class Hero {
 }
 
 export const randomHero = (heroes) => {
-  heroes = [...heroes].sort(() => Math.random() - 0.5)
+  heroes = sortRandom([...heroes])
+  
   return heroes
 }
 
@@ -18,7 +21,6 @@ const buildHero = (name, maxHp) => {
     maxHp
   }
 }
-
 
 export const initHeroes = [
   buildHero("adam", 3),

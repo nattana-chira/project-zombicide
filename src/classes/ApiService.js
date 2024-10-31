@@ -61,6 +61,8 @@ export const resetInit = async ({ docId, sessionId }) => {
 
     const jsonData = JSON.parse(JSON.stringify(_initState))
     console.log("BEFORE RESET: ", jsonData)
+    
+    console.log("BEFORE RESET222: ", COLLECTION, docId)
 
     await updateDoc(doc(collection(db, COLLECTION), docId), { ...jsonData })
 

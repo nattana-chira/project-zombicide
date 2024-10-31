@@ -320,7 +320,7 @@ function App() {
   }
 
   const handleMouseMove = (event) => {
-    if (isAdmin) setMousePos({ x: event.pageX - 200, y: event.pageY - 200 });
+    if (isAdmin && showSpawner) setMousePos({ x: event.pageX - 200, y: event.pageY - 200 });
   }
 
   const onYourNameInputChange = (e) => {

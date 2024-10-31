@@ -57,7 +57,7 @@ export default function Rain(props) {
         }
       }
       
-      setInterval(draw, 50);
+      setInterval(draw, 80);
     }
 
   }, )

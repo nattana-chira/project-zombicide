@@ -1,3 +1,5 @@
+import { sortRandom } from "./Utils"
+
 export default class Card {
   id = null
   dice = 0
@@ -209,7 +211,7 @@ export const mapMasterDeck = (cardId) =>
   masterDeck.find(card => card.id === cardId) || masterEpicDeck.find(card => card.id === cardId) || specialDeck.find(card => card.id === cardId)
 
 export const shuffleDeck = (deck) => {
-  const _deck = [...deck].sort(() => Math.random() - 0.5)
+  const _deck = sortRandom([...deck])
   return _deck
 }
 
